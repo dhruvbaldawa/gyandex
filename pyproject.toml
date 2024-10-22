@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "gyandex"
+version = "0.1.0"
+description = "organizes vast information into a structured, accessible format to simplify knowledge acquisition"
+authors = ["Dhruv Baldawa <dhruvbaldawa@gmail.com>"]
+license = { text = "AGPL-3.0-or-later" }
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[project.classifiers]
+license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
