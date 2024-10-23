@@ -3,11 +3,23 @@ name = "gyandex"
 version = "0.1.0"
 description = "organizes vast information into a structured, accessible format to simplify knowledge acquisition"
 authors = ["Dhruv Baldawa <dhruvbaldawa@gmail.com>"]
-license = { text = "AGPL-3.0-or-later" }
+license = "AGPL-3.0-or-later"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pandas = "^2.2.3"
+notebook = "^7.2.2"
+torch = "^2.5.0"
+langchain = "^0.3.4"
+langchain-google-genai = "^2.0.1"
+python-dotenv = "^1.0.1"
+ipywidgets = "^8.1.5"
+langchain-google-community = {extras = ["texttospeech"], version = "^2.0.1"}
+pydub = "^0.25.1"
+
+[tool.poetry.group.dev.dependencies]
+nbstripout = "^0.7.1"
 
 [project.classifiers]
 license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"

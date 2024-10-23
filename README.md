@@ -3,6 +3,20 @@
 It is a fun project to build a tool like NotebookLM while learning about the latest advancements in AI, and having fun
 in the process.
 
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10 or higher
+
+```shell
+poetry install
+```
+
+### Running the Application
+@TODO: add steps for google authentication
+@TODO: add steps for LLM API keys
+
 ## License
 
 This project is licensed under the **AGPL v3** for open-source use. For those wishing to use the software in proprietary applications without disclosing source code, a **commercial license** is available.
