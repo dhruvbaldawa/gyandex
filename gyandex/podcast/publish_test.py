@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import Mock, patch
 import os
-from .publish import PodcastOrchestrator, PodcastMetadata
+from .publish import PodcastPublisher, PodcastMetadata
 from .models_test import test_db  # @todo: move to common fixtures
 from .storage import S3CompatibleStorage
 
@@ -14,7 +14,7 @@ def mock_storage():
 
 @pytest.fixture
 def orchestrator(mock_storage, test_db):
-    return PodcastOrchestrator(
+    return PodcastPublisher(
         storage=mock_storage,
         db=test_db,
         base_url="https://example.com",

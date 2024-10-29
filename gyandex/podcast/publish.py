@@ -24,7 +24,7 @@ class PodcastMetadata:
     publication_date: Optional[datetime] = None
 
 
-class PodcastOrchestrator:
+class PodcastPublisher:
     def __init__(
         self,
         storage: S3CompatibleStorage,
