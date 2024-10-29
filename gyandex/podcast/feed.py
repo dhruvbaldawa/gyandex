@@ -3,6 +3,7 @@ from typing import Optional
 from feedgen.feed import FeedGenerator
 from email.utils import formatdate
 import pytz
+from .models import PodcastDB
 
 
 class PodcastFeedGenerator:
@@ -43,7 +44,7 @@ class PodcastFeedGenerator:
         fg.podcast.itunes_category(
             feed_data.categories.split(",")[0] if feed_data.categories else "Technology"
         )
-        fg.podcast.itunes_explicit(feed_data.explicit == "yes")
+        fg.podcast.itunes_explicit(feed_data.explicit)
         fg.podcast.itunes_author(feed_data.author)
         fg.podcast.itunes_owner(name=feed_data.author, email=feed_data.email)
 
@@ -66,13 +67,13 @@ class PodcastFeedGenerator:
             fe.podcast.itunes_duration(
                 str(episode.duration) if episode.duration else "0"
             )
-            fe.podcast.itunes_explicit(episode.explicit == "yes")
+            fe.podcast.itunes_explicit(episode.explicit)
             if episode.image_url:
                 fe.podcast.itunes_image(episode.image_url)
             if episode.episode_number:
                 fe.podcast.itunes_episode(str(episode.episode_number))
             if episode.season_number:
                 fe.podcast.itunes_season(str(episode.season_number))
-            fe.podcast.itunes_episodeType(episode.episode_type)
+            fe.podcast.itunes_episode_type(episode.episode_type)
 
         return fg.rss_str(pretty=True).decode("utf-8")

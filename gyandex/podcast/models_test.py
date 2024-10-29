@@ -36,6 +36,7 @@ def sample_feed_data():
         "language": "en",
         "copyright": "2024 Test Author",
         "categories": "Technology,Education",
+        "explicit": "no",
     }
 
 

@@ -8,6 +8,11 @@ import xml.etree.ElementTree as ET
 
 from .models import Base, Feed, Episode, PodcastDB
 from .feed import PodcastFeedGenerator
+from .models_test import (
+    test_db,
+    sample_feed_data,
+    sample_episode_data,
+)  # @todo: move to common fixtures
 
 # Feed Generator Tests
 
