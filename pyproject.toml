@@ -19,6 +19,7 @@ langchain-google-community = {extras = ["texttospeech"], version = "^2.0.1"}
 pydub = "^0.25.1"
 boto3 = "^1.35.49"
 feedgen = "^1.0.0"
+mutagen = "^1.47.0"
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"

@@ -86,6 +86,7 @@ class PodcastDB:
         with self.session() as session:
             return session.query(Feed).filter(Feed.name == name).first()
 
+    # @TODO: Update using the feed id, instead of name
     def add_episode(
         self, feed_name: str, title: str, audio_url: str, guid: str, **kwargs
     ) -> Episode:
@@ -102,6 +103,7 @@ class PodcastDB:
             session.refresh(episode)
             return episode
 
+    # @TODO: Update using the feed id, instead of name
     def get_episodes(self, feed_name: str, limit: int = None) -> list[Type[Episode]]:
         with self.session() as session:
             query = (
