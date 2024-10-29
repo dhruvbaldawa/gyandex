@@ -17,6 +17,10 @@ python-dotenv = "^1.0.1"
 ipywidgets = "^8.1.5"
 langchain-google-community = {extras = ["texttospeech"], version = "^2.0.1"}
 pydub = "^0.25.1"
+boto3 = "^1.35.49"
+pytest = "^8.3.3"
+pytest-mock = "^3.14.0"
+feedgen = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"
