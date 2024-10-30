@@ -1,0 +1,50 @@
+import logging
+from datetime import datetime
+
+from langchain_core.callbacks import BaseCallbackHandler
+from langchain_google_genai import GoogleGenerativeAI
+
+from ..podgen.config.schema import LLMConfig  # @TODO: Pull this out of podgen
+
+
+class LLMLoggingCallback(BaseCallbackHandler):
+    def __init__(self):
+        logger = logging.getLogger('llm_logger')
+        logger.setLevel(logging.INFO)
+
+        # Create file handler with timestamp in filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        fh = logging.FileHandler(f'assets/llm_logs_{timestamp}.log')
+        fh.setLevel(logging.INFO)
+
+        # Create formatter
+        formatter = logging.Formatter('%(asctime)s - %(message)s')
+        fh.setFormatter(formatter)
+
+        logger.addHandler(fh)
+        self.logger = logger
+
+    def on_llm_start(self, serialized, prompts, **kwargs):
+        # Log each prompt on a new line for readability
+        prompt_text = "\n".join(prompts)
+        self.logger.info(f"\n=== PROMPT ===\n{prompt_text}\n")
+
+    def on_llm_end(self, response, **kwargs):
+        # Extract and format the plain text response
+        response_text = response.generations[0][0].text
+        self.logger.info(f"\n=== RESPONSE ===\n{response_text}\n")
+
+    def on_llm_error(self, error, **kwargs):
+        self.logger.error(f"\n=== ERROR ===\n{str(error)}\n")
+
+def get_model(config: LLMConfig):
+    if config.provider == "google-generative-ai":
+        return GoogleGenerativeAI(
+            model=config.model,
+            temperature=config.temperature,
+            google_api_key=config.llm_params.google_api_key,
+            max_output_tokens=8192,  # @TODO: Move this to config params
+            callbacks=[LLMLoggingCallback()],
+        )
+    else:
+        raise NotImplementedError(f"Provider {config.provider} not implemented")

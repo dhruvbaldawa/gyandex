@@ -6,6 +6,9 @@ authors = ["Dhruv Baldawa <dhruvbaldawa@gmail.com>"]
 license = "AGPL-3.0-or-later"
 readme = "README.md"
 
+[tool.poetry.scripts]
+podgen = "gyandex.cli.genpod:main"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 pandas = "^2.2.3"
@@ -20,6 +23,7 @@ pydub = "^0.25.1"
 boto3 = "^1.35.49"
 feedgen = "^1.0.0"
 mutagen = "^1.47.0"
+rich = {extras = ["jupyter"], version = "^13.9.3"}
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"
@@ -27,6 +31,7 @@ pytest = "^8.3.3"
 pytest-mock = "^3.14.0"
 pytest-cov = "^5.0.0"
 rust-just = "^1.36.0"
+responses = "^0.25.3"
 
 [project.classifiers]
 license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"
