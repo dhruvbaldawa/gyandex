@@ -1,9 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch, ANY
-import boto3
 from botocore.exceptions import ClientError
-import os
-from gyandex.podcast.storage import S3CompatibleStorage
+from .s3 import S3CompatibleStorage
 
 
 @pytest.fixture

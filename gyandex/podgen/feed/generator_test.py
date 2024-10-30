@@ -1,13 +1,7 @@
 import pytest
-from datetime import datetime
-import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from feedgen.feed import FeedGenerator
 import xml.etree.ElementTree as ET
 
-from .models import Base, Feed, Episode, PodcastDB
-from .feed import PodcastFeedGenerator
+from .generator import PodcastFeedGenerator
 from .models_test import (
     test_db,
     sample_feed_data,

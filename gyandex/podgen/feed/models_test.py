@@ -1,7 +1,5 @@
 import os
-
 import pytest
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 from .models import PodcastDB, Feed
 

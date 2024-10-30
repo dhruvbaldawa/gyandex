@@ -2,9 +2,9 @@ import pytest
 from datetime import datetime
 from unittest.mock import Mock, patch
 import os
-from .publish import PodcastPublisher, PodcastMetadata
-from .models_test import test_db  # @todo: move to common fixtures
-from .storage import S3CompatibleStorage
+from .publisher import PodcastPublisher, PodcastMetadata
+from ..feed.models_test import test_db  # @todo: move to common fixtures
+from ..storage.s3 import S3CompatibleStorage
 
 
 @pytest.fixture

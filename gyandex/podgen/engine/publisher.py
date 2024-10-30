@@ -6,9 +6,9 @@ import mutagen
 from dataclasses import dataclass
 from urllib.parse import urljoin
 
-from .feed import PodcastFeedGenerator
-from .storage import S3CompatibleStorage
-from .models import PodcastDB, Episode
+from ..feed.generator import PodcastFeedGenerator
+from ..storage.s3 import S3CompatibleStorage
+from ..feed.models import PodcastDB, Episode
 
 
 @dataclass

@@ -1,5 +1,3 @@
-from datetime import datetime
-from typing import Optional
 from feedgen.feed import FeedGenerator
 from email.utils import formatdate
 import pytz
