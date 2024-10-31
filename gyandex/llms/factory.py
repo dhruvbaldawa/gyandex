@@ -1,10 +1,11 @@
 import logging
 from datetime import datetime
+from typing import Union
 
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_google_genai import GoogleGenerativeAI
 
-from ..podgen.config.schema import LLMConfig  # @TODO: Pull this out of podgen
+from ..podgen.config.schema import GoogleGenerativeAILLMConfig  # @TODO: Pull this out of podgen
 
 
 class LLMLoggingCallback(BaseCallbackHandler):
@@ -37,12 +38,13 @@ class LLMLoggingCallback(BaseCallbackHandler):
     def on_llm_error(self, error, **kwargs):
         self.logger.error(f"\n=== ERROR ===\n{str(error)}\n")
 
-def get_model(config: LLMConfig):
+# @TODO: Centralize this argument type in a single place
+def get_model(config: Union[GoogleGenerativeAILLMConfig]):
     if config.provider == "google-generative-ai":
         return GoogleGenerativeAI(
             model=config.model,
             temperature=config.temperature,
-            google_api_key=config.llm_params.google_api_key,
+            google_api_key=config.google_api_key,
             max_output_tokens=8192,  # @TODO: Move this to config params
             callbacks=[LLMLoggingCallback()],
         )

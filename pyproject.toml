@@ -24,6 +24,7 @@ boto3 = "^1.35.49"
 feedgen = "^1.0.0"
 mutagen = "^1.47.0"
 rich = {extras = ["jupyter"], version = "^13.9.3"}
+python-slugify = "^8.0.4"
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"

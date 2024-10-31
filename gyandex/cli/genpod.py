@@ -1,17 +1,19 @@
 import argparse
+import hashlib
 import os
-from datetime import datetime
-from io import BytesIO
+from collections import namedtuple
 
 from dotenv import load_dotenv
-from pydub import AudioSegment
 from rich.console import Console
 
 from gyandex.llms.factory import get_model
 from gyandex.loaders.factory import load_content
+from gyandex.podgen.engine.publisher import PodcastPublisher, PodcastMetadata
+from gyandex.podgen.feed.models import PodcastDB
 from gyandex.podgen.config.loader import load_config
 from gyandex.podgen.engine.synthesizer import TTSEngine
-from gyandex.podgen.engine.workflows import analyze_content, create_script
+from gyandex.podgen.engine.workflows import create_script
+from gyandex.podgen.storage.factory import get_storage
 
 
 def main():
@@ -35,37 +37,50 @@ def main():
     console.log('Content loaded...')
 
     # Analyze the content
-    with console.status('[bold green] Analyzing content...[/bold green]'):
+    with console.status('[bold green] Crafting the script...[/bold green]'):
         script = create_script(model, document)  # attach callback to see the progress
-    console.log('Content analyzed...')
+    console.log(f'Script completed for "{script.title}". Script contains {len(script.segments)} segments...')
 
     # Generate the podcast audio
-    with console.status('[bold green] Generating podcast...[/bold green]'):
+    with console.status('[bold green] Generating audio...[/bold green]'):
         tts_engine = TTSEngine()
         audio_segments = [tts_engine.process_segment(segment) for segment in script.segments]
 
-    # Create output directory
-    # @TODO: Move this to module level
-    output_dir = "generated_podcasts"
-    os.makedirs(output_dir, exist_ok=True)
+        # Create output directory
+        output_dir = f"generated_podcasts/{config.feed.slug}"
+        os.makedirs(output_dir, exist_ok=True)
 
-    # Generate timestamp for unique filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    podcast_path = f"{output_dir}/podcast_{timestamp}.mp3"
+        podcast_path = f"{output_dir}/podcast_{hashlib.md5(config.content.source.encode()).hexdigest()}.mp3"
+        tts_engine.generate_audio_file(audio_segments, podcast_path)
+    console.log(f'Podcast file {podcast_path} generated...')
 
-    # Combine segments directly
-    combined = AudioSegment.empty()
-    previous_segment = None
-    for segment in audio_segments:
-        segment_audio = AudioSegment.from_mp3(BytesIO(segment))
-        if previous_segment:
-            combined = combined.append(segment_audio, crossfade=200)
-        else:
-            combined += segment_audio
-        previous_segment = segment
-
-    # Save final podcast
-    combined.export(podcast_path, format="mp3")
-
-    # Publish the podcast
-    # @TODO: Implement publish logic
+    with console.status('[bold green] Publishing podcast...[/bold green]'):
+        storage = get_storage(config.storage)
+        db = PodcastDB(db_path='assets/podcasts.db')
+        publisher = PodcastPublisher(
+            storage=storage,
+            db=db,
+            base_url=f"https://{storage.custom_domain}",  # @FIXME: we need to fallback when custom domain is not available
+        )
+        feed_url = publisher.create_feed(
+            slug=config.feed.slug,
+            title=config.feed.title,
+            email=config.feed.email,
+            website=str(config.feed.website),
+            description=config.feed.description,
+            author=config.feed.author,
+            image_url=str(config.feed.image),
+            language=config.feed.language,
+            categories=",".join(config.feed.categories),
+        )
+        console.log('Uploading episode...')
+        urls = publisher.add_episode(
+            feed_slug=config.feed.slug,
+            audio_file_path=podcast_path,
+            metadata=PodcastMetadata(
+                title=script.title,
+                description=script.description,
+            )
+        )
+    console.log(f"Feed published at {urls['feed_url']}")
+    console.log(f"Episode published at {urls['episode_url']}")

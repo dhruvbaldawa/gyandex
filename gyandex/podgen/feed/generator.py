@@ -8,20 +8,19 @@ class PodcastFeedGenerator:
     def __init__(self, db: PodcastDB):
         self.db = db
 
-    def generate_feed(self, feed_name: str, base_url: str) -> str:
+    def generate_feed(self, slug: str) -> str:
         """
         Generate a podcast RSS feed.
 
         Args:
-            feed_name: Name of the feed to generate
-            base_url: Base URL for the audio files
+            slug: Slug of the feed to generate
 
         Returns:
             RSS feed XML as string
         """
-        feed_data = self.db.get_feed(feed_name)
+        feed_data = self.db.get_feed(slug)
         if not feed_data:
-            raise ValueError(f"Feed '{feed_name}' not found")
+            raise ValueError(f"Feed '{slug}' not found")
 
         fg = FeedGenerator()
         fg.load_extension("podcast")
@@ -30,7 +29,7 @@ class PodcastFeedGenerator:
         fg.title(feed_data.title)
         fg.description(feed_data.description)
         fg.author({"name": feed_data.author, "email": feed_data.email})
-        fg.link(href=feed_data.website or base_url, rel="alternate")
+        fg.link(href=feed_data.website, rel="alternate")
         fg.language(feed_data.language)
         fg.copyright(feed_data.copyright)
 
@@ -47,7 +46,7 @@ class PodcastFeedGenerator:
         fg.podcast.itunes_owner(name=feed_data.author, email=feed_data.email)
 
         # Add episodes
-        episodes = self.db.get_episodes(feed_name)
+        episodes = self.db.get_episodes(slug)
         for episode in episodes:
             fe = fg.add_entry()
             fe.id(episode.guid)

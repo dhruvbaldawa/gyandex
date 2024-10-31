@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Optional, Type, Tuple
 from sqlalchemy import (
     create_engine,
     Column,
@@ -8,7 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     Text,
 )
-from sqlalchemy.orm import declarative_base, relationship, Session, sessionmaker
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -18,7 +18,7 @@ class Feed(Base):
     __tablename__ = "feeds"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), unique=True, nullable=False)
+    slug = Column(String(255), unique=True, nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text)
     author = Column(String(255))
@@ -38,8 +38,25 @@ class Feed(Base):
     )
 
     def __repr__(self):
-        return f"<Feed(name='{self.name}', title='{self.title}')>"
+        return f"<Feed(slug='{self.slug}', title='{self.title}')>"
 
+    def get_latest_episode(self, session) -> Tuple[int, int]:
+        """
+        Get the next episode number for the feed.
+        """
+        # Query the database to get the maximum episode number for the feed
+        max_episode_number = (
+            session.query(func.max(Episode.episode_number))
+            .filter(Episode.feed_id == self.id)
+            .scalar()
+        ) or 0
+
+        max_season_number = (
+            session.query(func.max(Episode.season_number))
+            .filter(Episode.feed_id == self.id)
+            .scalar()
+        ) or 1
+        return max_season_number, max_episode_number
 
 class Episode(Base):
     __tablename__ = "episodes"
@@ -74,29 +91,34 @@ class PodcastDB:
         Base.metadata.create_all(self.engine)
         self.session = sessionmaker(bind=self.engine)
 
-    def create_feed(self, name: str, title: str, **kwargs) -> Feed:
+    def create_feed(self, slug: str, title: str, **kwargs) -> Feed:
         with self.session() as session:
-            feed = Feed(name=name, title=title, **kwargs)
+            feed = Feed(slug=slug, title=title, **kwargs)
             session.add(feed)
             session.commit()
             session.refresh(feed)
             return feed
 
-    def get_feed(self, name: str) -> Optional[Feed]:
+    def get_feed(self, slug: str) -> Optional[Feed]:
         with self.session() as session:
-            return session.query(Feed).filter(Feed.name == name).first()
+            return session.query(Feed).filter(Feed.slug == slug).first()
 
-    # @TODO: Update using the feed id, instead of name
     def add_episode(
-        self, feed_name: str, title: str, audio_url: str, guid: str, **kwargs
+        self, feed_slug: str, title: str, audio_url: str, guid: str, **kwargs
     ) -> Episode:
         with self.session() as session:
-            feed = session.query(Feed).filter(Feed.name == feed_name).first()
+            feed = session.query(Feed).filter(Feed.slug == feed_slug).first()
             if not feed:
-                raise ValueError(f"Feed '{feed_name}' not found")
-
+                raise ValueError(f"Feed '{feed_slug}' not found")
+            season_number, episode_number = feed.get_latest_episode(session)
             episode = Episode(
-                feed_id=feed.id, title=title, audio_url=audio_url, guid=guid, **kwargs
+                feed_id=feed.id,
+                title=title,
+                audio_url=audio_url,
+                guid=guid,
+                season_number=season_number,
+                episode_number=episode_number + 1,
+                **kwargs,
             )
             session.add(episode)
             session.commit()
@@ -104,12 +126,12 @@ class PodcastDB:
             return episode
 
     # @TODO: Update using the feed id, instead of name
-    def get_episodes(self, feed_name: str, limit: int = None) -> list[Type[Episode]]:
+    def get_episodes(self, feed_slug: str, limit: int = None) -> list[Type[Episode]]:
         with self.session() as session:
             query = (
                 session.query(Episode)
                 .join(Feed)
-                .filter(Feed.name == feed_name)
+                .filter(Feed.slug == feed_slug)
                 .order_by(Episode.publication_date.desc())
             )
 

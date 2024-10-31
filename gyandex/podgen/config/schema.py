@@ -1,9 +1,7 @@
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Literal
 
-from langchain_google_genai import GoogleGenerativeAI
-from pydantic import BaseModel, HttpUrl
-from pydantic.v1 import validator
+from pydantic import BaseModel, HttpUrl, Field
 
 
 # @TODO: Redo this, the content format can be better structured
@@ -24,27 +22,11 @@ class LLMProviders(Enum):
     GOOGLE_GENERATIVE_AI = "google-generative-ai"
 
 
-class GoogleGenerativeAIParams(BaseModel):
-    google_api_key: str
-
-
-# @TODO: Pull this out of podgen
-class LLMConfig(BaseModel):
-    provider: str
+class GoogleGenerativeAILLMConfig(BaseModel):
+    provider: Literal["google-generative-ai"]
     model: str
-    temperature: float
-    llm_params: Union[GoogleGenerativeAIParams]
-
-    # Add validation to ensure params match provider
-    @validator('llm_params')
-    def validate_llm_params(cls, v, values):
-        provider_param_map = {
-            'google-generative-ai': GoogleGenerativeAIParams,
-        }
-        expected_type = provider_param_map.get(values['provider'])
-        if not isinstance(v, expected_type):
-            raise ValueError(f'Provider {values["provider"]} requires params of type {expected_type.__name__}')
-        return v
+    temperature: Optional[float] = 1.0
+    google_api_key: str
 
 
 class VoiceProfile(BaseModel):
@@ -59,22 +41,26 @@ class TTSConfig(BaseModel):
     voices: Dict[str, VoiceProfile]
 
 
-class StorageConfig(BaseModel):
-    provider: str
+class S3StorageConfig(BaseModel):
+    provider: Literal["s3"]
     bucket: str
-    region: str
-    path_template: str
+    access_key: str
+    secret_key: str
+    region: Optional[str] = None
+    endpoint: Optional[str] = None
+    custom_domain: Optional[str] = None
 
 
 class FeedConfig(BaseModel):
     title: str
+    slug: str
     description: str
     author: str
     email: str
     language: str
     categories: List[str]
     image: HttpUrl
-    explicit: bool
+    website: HttpUrl
 
 
 class Segment(BaseModel):
@@ -87,16 +73,11 @@ class ContentStructure(BaseModel):
     speaker: str
 
 
-class EpisodeConfig(BaseModel):
-    title: str
-    content_mode: str
-
-
 class PodcastConfig(BaseModel):
     version: str
     content: ContentConfig
-    llm: LLMConfig  # @TODO: Rethink this because I would like to use multiple LLMs for optimizing costs
+    # @TODO: Rethink this because I would like to use multiple LLMs for optimizing costs
+    llm: Union[GoogleGenerativeAILLMConfig] = Field(discriminator="provider")
     tts: TTSConfig
-    storage: StorageConfig
+    storage: Union[S3StorageConfig] = Field(discriminator="provider")
     feed: FeedConfig
-    episode: EpisodeConfig

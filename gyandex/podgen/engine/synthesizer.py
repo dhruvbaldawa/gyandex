@@ -1,9 +1,14 @@
+from io import BytesIO
+from typing import List, Optional, Dict, Any
+
 from google.cloud import texttospeech
+from pydub import AudioSegment
 
 from gyandex.podgen.engine.workflows import PodcastSegment  # @TODO: Pull this out of workflows
 
 
 class TTSEngine:
+    # @TODO: Accept configuration to tweak the voice
     def __init__(self):
         self.client = texttospeech.TextToSpeechClient()
         self.voices = {
@@ -35,3 +40,23 @@ class TTSEngine:
             audio_config=self.audio_config
         )
         return response.audio_content
+
+    def generate_audio_file(self, audio_segments: List[bytes], podcast_path: str, options: Optional[Dict[str, Any]] = None):
+        if options is None:
+            # @TODO: Fix this code-smell
+            options = {
+                "crossfade": 200,
+            }
+
+        combined = AudioSegment.empty()
+        previous_segment = None
+        for segment in audio_segments:
+            segment_audio = AudioSegment.from_mp3(BytesIO(segment))
+            if previous_segment:
+                combined = combined.append(segment_audio, crossfade=options['crossfade'])
+            else:
+                combined += segment_audio
+            previous_segment = segment
+
+        # Save final podcast
+        combined.export(podcast_path, format="mp3")

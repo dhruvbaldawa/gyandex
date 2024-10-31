@@ -50,7 +50,6 @@ class S3CompatibleStorage:
             region_name=region_name,
             config=config,
         )
-        print(self.client)
 
     def upload_file(
         self,
