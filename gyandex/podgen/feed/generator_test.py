@@ -19,11 +19,11 @@ def test_generate_feed_xml(test_db, sample_feed_data, sample_episode_data):
     """
     # Given
     feed = test_db.create_feed(**sample_feed_data)
-    episode = test_db.add_episode(feed.name, **sample_episode_data)
+    episode = test_db.add_episode(feed.slug, **sample_episode_data)
 
     # When
     generator = PodcastFeedGenerator(test_db)
-    feed_xml = generator.generate_feed(feed.name, "https://example.com")
+    feed_xml = generator.generate_feed(feed.slug)
 
     # Then
     root = ET.fromstring(feed_xml)
@@ -48,7 +48,7 @@ def test_generate_feed_with_nonexistent_feed(test_db):
 
     # When/Then
     with pytest.raises(ValueError):
-        generator.generate_feed("nonexistent", "https://example.com")
+        generator.generate_feed("nonexistent")
 
 
 def test_feed_episode_enclosure(test_db, sample_feed_data, sample_episode_data):
@@ -59,11 +59,11 @@ def test_feed_episode_enclosure(test_db, sample_feed_data, sample_episode_data):
     """
     # Given
     feed = test_db.create_feed(**sample_feed_data)
-    episode = test_db.add_episode(feed.name, **sample_episode_data)
+    episode = test_db.add_episode(feed.slug, **sample_episode_data)
 
     # When
     generator = PodcastFeedGenerator(test_db)
-    feed_xml = generator.generate_feed(feed.name, "https://example.com")
+    feed_xml = generator.generate_feed(feed.slug)
 
     # Then
     root = ET.fromstring(feed_xml)
@@ -85,7 +85,7 @@ def test_feed_itunes_categories(test_db, sample_feed_data):
 
     # When
     generator = PodcastFeedGenerator(test_db)
-    feed_xml = generator.generate_feed(feed.name, "https://example.com")
+    feed_xml = generator.generate_feed(feed.slug)
 
     # Then
     root = ET.fromstring(feed_xml)
@@ -103,11 +103,11 @@ def test_episode_guid_uniqueness(test_db, sample_feed_data, sample_episode_data)
     """
     # Given
     feed = test_db.create_feed(**sample_feed_data)
-    test_db.add_episode(feed.name, **sample_episode_data)
+    test_db.add_episode(feed.slug, **sample_episode_data)
 
     # When/Then
     with pytest.raises(Exception):  # SQLite will raise an IntegrityError
-        test_db.add_episode(feed.name, **sample_episode_data)
+        test_db.add_episode(feed.slug, **sample_episode_data)
 
 
 def test_feed_name_uniqueness(test_db, sample_feed_data):

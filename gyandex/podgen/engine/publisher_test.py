@@ -48,11 +48,12 @@ def test_create_feed(orchestrator, mock_storage):
     """
     # Given
     feed_data = {
-        "name": "test-feed",
+        "slug": "test-feed",
         "title": "Test Feed",
         "description": "Test Description",
         "author": "Test Author",
         "email": "test@example.com",
+        "website": "https://example.com",
     }
     mock_storage.upload_file.return_value = "https://example.com/feeds/test-feed.xml"
 
@@ -73,17 +74,18 @@ def test_add_episode(orchestrator, mock_storage, sample_audio, mock_mutagen):
     """
     # Given
     orchestrator.create_feed(
-        name="test-feed",
+        slug="test-feed",
         title="Test Feed",
         description="Test Description",
         author="Test Author",
         email="test@example.com",
+        website="https://example.com",
     )
     # Reset the mock after create_feed
     mock_storage.upload_file.reset_mock()
 
     metadata = PodcastMetadata(
-        title="Test Episode", description="Test Episode Description", episode_number=1
+        title="Test Episode", description="Test Episode Description",
     )
 
     mock_storage.upload_file.side_effect = [
@@ -124,11 +126,12 @@ def test_list_episodes(orchestrator, mock_storage, sample_audio, mock_mutagen):
     """
     # Given
     orchestrator.create_feed(
-        name="test-feed",
+        slug="test-feed",
         title="Test Feed",
         description="Test Description",
         author="Test Author",
         email="test@example.com",
+        website="https://example.com",
     )
 
     mock_storage.upload_file.return_value = "https://example.com/episodes/test.mp3"
