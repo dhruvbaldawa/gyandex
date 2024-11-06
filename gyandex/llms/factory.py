@@ -9,13 +9,13 @@ from ..podgen.config.schema import GoogleGenerativeAILLMConfig  # @TODO: Pull th
 
 
 class LLMLoggingCallback(BaseCallbackHandler):
-    def __init__(self):
+    def __init__(self, log_dir="assets"):
         logger = logging.getLogger('llm_logger')
         logger.setLevel(logging.INFO)
 
         # Create file handler with timestamp in filename
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        fh = logging.FileHandler(f'assets/llm_logs_{timestamp}.log')
+        fh = logging.FileHandler(f'{log_dir}/llm_logs_{timestamp}.log')
         fh.setLevel(logging.INFO)
 
         # Create formatter
@@ -39,14 +39,14 @@ class LLMLoggingCallback(BaseCallbackHandler):
         self.logger.error(f"\n=== ERROR ===\n{str(error)}\n")
 
 # @TODO: Centralize this argument type in a single place
-def get_model(config: Union[GoogleGenerativeAILLMConfig]):
+def get_model(config: Union[GoogleGenerativeAILLMConfig], log_dir="assets"):
     if config.provider == "google-generative-ai":
         return GoogleGenerativeAI(
             model=config.model,
             temperature=config.temperature,
             google_api_key=config.google_api_key,
             max_output_tokens=8192,  # @TODO: Move this to config params
-            callbacks=[LLMLoggingCallback()],
+            callbacks=[LLMLoggingCallback(log_dir)],
         )
     else:
         raise NotImplementedError(f"Provider {config.provider} not implemented")

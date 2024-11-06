@@ -73,7 +73,8 @@ def test_load_config_parses_yaml_with_env_vars(tmp_path):
       format: html
       source: https://example.com/feed
     llm:
-      provider: test
+      provider: google-generative-ai
+      google_api_key: test_api_key
       model: gpt-3.5-turbo
       temperature: 1
       max_tokens: 1000
@@ -88,17 +89,21 @@ def test_load_config_parses_yaml_with_env_vars(tmp_path):
           speaking_rate: 1.0
           pitch: 100
     storage:
-      provider: test
+      provider: s3
       bucket: test_bucket
       region: test_region
       path_template: test_path_template
+      access_key: test_access_key
+      secret_key: test_secret_key
     feed:
       title: My Podcast
+      slug: my-podcast
       description: Test Description
       author: Test Author
       email: test@example.com
       language: en-US
       image: https://example.com/image.jpg
+      website: https://example.com
       explicit: false
       categories:
         - test_category

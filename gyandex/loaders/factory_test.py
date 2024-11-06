@@ -1,3 +1,5 @@
+import json
+
 import pytest
 import responses
 from gyandex.loaders.factory import fetch_url
@@ -8,11 +10,11 @@ def test_fetch_url_returns_json_response():
     """Tests that fetch_url successfully retrieves and returns JSON data from a URL"""
     # Given
     test_url = "test123"
-    expected_json = {"data": "test_content"}
+    actual = {"data": {"title": "title", "content": "test content", "url": "url", "description": "description"}}
     responses.add(
         responses.GET,
         f"https://r.jina.ai/{test_url}",
-        json=expected_json,
+        json=actual,
         status=200
     )
 
@@ -20,7 +22,9 @@ def test_fetch_url_returns_json_response():
     result = fetch_url(test_url)
 
     # Then
-    assert result == expected_json
+    assert result.content == "test content"
+    assert result.title == "title"
+    assert result.metadata == { "url": "url", "description": "description" }
 
 
 @responses.activate
@@ -32,7 +36,7 @@ def test_fetch_url_sends_correct_headers():
     responses.add(
         responses.GET,
         f"https://r.jina.ai/{test_url}",
-        json={},
+        json={"data": {"title": "title", "content": "test content", "url": "url", "description": "description"}},
         status=200
     )
 
@@ -51,7 +55,7 @@ def test_fetch_url_constructs_correct_url():
     responses.add(
         responses.GET,
         expected_url,
-        json={},
+        json={"data": {"title": "title", "content": "test content", "url": "url", "description": "description"}},
         status=200
     )
 

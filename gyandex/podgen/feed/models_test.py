@@ -25,7 +25,7 @@ def db_session(test_db):
 def sample_feed_data():
     """Sample feed data for testing"""
     return {
-        "name": "test-podcast",
+        "slug": "test-podcast",
         "title": "Test Podcast",
         "description": "A test podcast",
         "author": "Test Author",
@@ -49,8 +49,6 @@ def sample_episode_data():
         "duration": 1800,
         "file_size": 15000000,
         "mime_type": "audio/mpeg",
-        "episode_number": 1,
-        "season_number": 1,
         "episode_type": "full",
     }
 
@@ -68,7 +66,7 @@ def test_create_feed(test_db, db_session, sample_feed_data):
     # Then
     stored_feed = db_session.query(Feed).filter(Feed.id == feed.id).first()
 
-    assert stored_feed.name == sample_feed_data["name"]
+    assert stored_feed.slug == sample_feed_data["slug"]
     assert stored_feed.title == sample_feed_data["title"]
     assert stored_feed.author == sample_feed_data["author"]
     assert stored_feed.created_at is not None
@@ -97,7 +95,7 @@ def test_add_episode_to_feed(test_db, sample_feed_data, sample_episode_data):
     feed = test_db.create_feed(**sample_feed_data)
 
     # When
-    episode = test_db.add_episode(feed_name=feed.name, **sample_episode_data)
+    episode = test_db.add_episode(feed_slug=feed.slug, **sample_episode_data)
 
     # Then
     assert episode.title == sample_episode_data["title"]
@@ -114,7 +112,7 @@ def test_add_episode_to_nonexistent_feed(test_db, sample_episode_data):
     """
     # When/Then
     with pytest.raises(ValueError):
-        test_db.add_episode(feed_name="nonexistent", **sample_episode_data)
+        test_db.add_episode(feed_slug="nonexistent", **sample_episode_data)
 
 
 def test_get_episodes_ordered_by_date(test_db, sample_feed_data, sample_episode_data):
@@ -130,11 +128,11 @@ def test_get_episodes_ordered_by_date(test_db, sample_feed_data, sample_episode_
     episode1_data = {**sample_episode_data, "guid": "ep1"}
     episode2_data = {**sample_episode_data, "guid": "ep2"}
 
-    test_db.add_episode(feed.name, **episode1_data)
-    test_db.add_episode(feed.name, **episode2_data)
+    test_db.add_episode(feed.slug, **episode1_data)
+    test_db.add_episode(feed.slug, **episode2_data)
 
     # When
-    episodes = test_db.get_episodes(feed.name)
+    episodes = test_db.get_episodes(feed.slug)
 
     # Then
     assert len(episodes) == 2
