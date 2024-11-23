@@ -1,7 +1,6 @@
 import argparse
 import hashlib
 import os
-from collections import namedtuple
 
 from dotenv import load_dotenv
 from rich.console import Console
@@ -11,8 +10,8 @@ from gyandex.loaders.factory import load_content
 from gyandex.podgen.engine.publisher import PodcastPublisher, PodcastMetadata
 from gyandex.podgen.feed.models import PodcastDB
 from gyandex.podgen.config.loader import load_config
-from gyandex.podgen.engine.synthesizer import TTSEngine
-from gyandex.podgen.engine.workflows import create_script
+from gyandex.podgen.engine.workflows import generate_podcast
+from gyandex.podgen.speech.factory import get_text_to_speech_engine
 from gyandex.podgen.storage.factory import get_storage
 
 
@@ -38,12 +37,12 @@ def main():
 
     # Analyze the content
     with console.status('[bold green] Crafting the script...[/bold green]'):
-        script = create_script(model, document)  # attach callback to see the progress
+        script = generate_podcast(model, document)  # attach callback to see the progress
     console.log(f'Script completed for "{script.title}". Script contains {len(script.segments)} segments...')
 
     # Generate the podcast audio
     with console.status('[bold green] Generating audio...[/bold green]'):
-        tts_engine = TTSEngine()
+        tts_engine = get_text_to_speech_engine(config.tts)
         audio_segments = [tts_engine.process_segment(segment) for segment in script.segments]
 
         # Create output directory
