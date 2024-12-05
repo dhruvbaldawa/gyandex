@@ -1,10 +1,8 @@
-import pytest
 from unittest.mock import Mock, patch
-from io import BytesIO
-from pydub import AudioSegment
 from google.cloud import texttospeech
 from gyandex.podgen.processors.tts import GoogleTTSEngine
 from gyandex.podgen.engine.workflows import ScriptSegment
+
 
 def test_tts_engine_initialization():
     """Tests that TTSEngine initializes with correct voice configurations"""
@@ -12,11 +10,12 @@ def test_tts_engine_initialization():
     engine = GoogleTTSEngine()
 
     # Then
-    assert 'HOST1' in engine.voices
-    assert 'HOST2' in engine.voices
+    assert "HOST1" in engine.voices
+    assert "HOST2" in engine.voices
     assert isinstance(engine.client, texttospeech.TextToSpeechClient)
 
-@patch('google.cloud.texttospeech.TextToSpeechClient')
+
+@patch("google.cloud.texttospeech.TextToSpeechClient")
 def test_synthesize_speech_for_host1(mock_client):
     """Tests speech synthesis for HOST1 voice"""
     # Given
@@ -32,7 +31,8 @@ def test_synthesize_speech_for_host1(mock_client):
     assert result == b"test_audio_content"
     mock_client.return_value.synthesize_speech.assert_called_once()
 
-@patch('google.cloud.texttospeech.TextToSpeechClient')
+
+@patch("google.cloud.texttospeech.TextToSpeechClient")
 def test_process_segment(mock_client):
     """Tests processing of a complete podcast segment"""
     # Given

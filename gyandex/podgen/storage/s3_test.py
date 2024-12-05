@@ -56,9 +56,7 @@ def r2_storage(mock_s3_client):
 def test_initialization(mock_s3_storage):
     """Test storage initialization with different configurations"""
     # Test AWS S3 initialization
-    _ = S3CompatibleStorage(
-        bucket="test-bucket", access_key_id="test-key", secret_access_key="test-secret"
-    )
+    _ = S3CompatibleStorage(bucket="test-bucket", access_key_id="test-key", secret_access_key="test-secret")
 
     mock_s3_storage.assert_called_once_with(
         "s3",
@@ -115,9 +113,7 @@ def test_download_file(storage, mock_s3_client, tmp_path):
 
     storage.download_file("episodes/test.mp3", str(download_path))
 
-    mock_s3_client.download_file.assert_called_with(
-        "test-bucket", "episodes/test.mp3", str(download_path)
-    )
+    mock_s3_client.download_file.assert_called_with("test-bucket", "episodes/test.mp3", str(download_path))
 
 
 def test_get_public_url_aws(storage):
@@ -178,9 +174,7 @@ def test_delete_file(storage, mock_s3_client):
     """Test file deletion functionality"""
     storage.delete_file("episodes/test.mp3")
 
-    mock_s3_client.delete_object.assert_called_with(
-        Bucket="test-bucket", Key="episodes/test.mp3"
-    )
+    mock_s3_client.delete_object.assert_called_with(Bucket="test-bucket", Key="episodes/test.mp3")
 
 
 def test_upload_file_content_type_guessing(storage, mock_s3_client, tmp_path):

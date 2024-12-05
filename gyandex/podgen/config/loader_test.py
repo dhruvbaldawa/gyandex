@@ -3,6 +3,7 @@ import pytest
 from .loader import resolve_env_vars, resolve_nested_env_vars, load_config
 from .schema import PodcastConfig
 
+
 def test_resolve_env_vars_replaces_single_variable():
     """Test that resolve_env_vars replaces a single environment variable in a string"""
     # Given
@@ -14,6 +15,7 @@ def test_resolve_env_vars_replaces_single_variable():
 
     # Then
     assert result == "prefix_test_value_suffix"
+
 
 def test_resolve_env_vars_handles_multiple_variables():
     """Test that resolve_env_vars replaces multiple environment variables in a string"""
@@ -28,6 +30,7 @@ def test_resolve_env_vars_handles_multiple_variables():
     # Then
     assert result == "first_middle_second"
 
+
 def test_resolve_env_vars_raises_on_missing_variable():
     """Test that resolve_env_vars raises ValueError when environment variable is not found"""
     # Given
@@ -37,27 +40,19 @@ def test_resolve_env_vars_raises_on_missing_variable():
     with pytest.raises(ValueError, match="Environment variable NONEXISTENT_VAR not found"):
         resolve_env_vars(input_string)
 
+
 def test_resolve_nested_env_vars_handles_dict():
     """Test that resolve_nested_env_vars resolves variables in nested dictionary"""
     # Given
     os.environ["NESTED_VAR"] = "value"
-    input_dict = {
-        "key1": "${NESTED_VAR}",
-        "key2": {
-            "nested_key": "${NESTED_VAR}"
-        }
-    }
+    input_dict = {"key1": "${NESTED_VAR}", "key2": {"nested_key": "${NESTED_VAR}"}}
 
     # When
     result = resolve_nested_env_vars(input_dict)
 
     # Then
-    assert result == {
-        "key1": "value",
-        "key2": {
-            "nested_key": "value"
-        }
-    }
+    assert result == {"key1": "value", "key2": {"nested_key": "value"}}
+
 
 def test_load_config_parses_yaml_with_env_vars(tmp_path):
     """Test that load_config properly loads YAML and resolves environment variables"""

@@ -3,12 +3,13 @@ import re
 import yaml
 from .schema import PodcastConfig
 
+
 def resolve_env_vars(value: str) -> str:
     """Resolve ${ENV_VAR} patterns in string values"""
     if not isinstance(value, str):
         return value
 
-    pattern = r'\${([^}^{]+)}'
+    pattern = r"\${([^}^{]+)}"
     matches = re.finditer(pattern, value)
 
     for match in matches:
@@ -20,6 +21,7 @@ def resolve_env_vars(value: str) -> str:
 
     return value
 
+
 def resolve_nested_env_vars(data):
     """Recursively resolve environment variables in nested structures"""
     if isinstance(data, dict):
@@ -28,6 +30,7 @@ def resolve_nested_env_vars(data):
         return [resolve_nested_env_vars(v) for v in data]
     else:
         return resolve_env_vars(data)
+
 
 def load_config(config_path: str) -> PodcastConfig:
     """Load and parse YAML config with environment variable support"""

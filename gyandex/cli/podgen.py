@@ -6,7 +6,6 @@ import os
 from dotenv import load_dotenv
 from rich.console import Console
 
-from gyandex.llms.factory import get_model
 from gyandex.loaders.factory import load_content
 from gyandex.podgen.engine.publisher import PodcastPublisher, PodcastMetadata
 from gyandex.podgen.feed.models import PodcastDB
@@ -31,18 +30,18 @@ def main():
     config = load_config(args.config_path)
 
     # Load the content
-    with console.status('[bold green] Loading content...[/bold green]'):
+    with console.status("[bold green] Loading content...[/bold green]"):
         document = load_content(config.content)
-    console.log('Content loaded...')
+    console.log("Content loaded...")
 
     # Analyze the content
-    with console.status('[bold green] Crafting the script...[/bold green]'):
+    with console.status("[bold green] Crafting the script...[/bold green]"):
         workflow = get_workflow(config)
         script = asyncio.run(workflow.generate_script(document))
     console.log(f'Script completed for "{script.title}". Script contains {len(script.dialogues)} segments...')
 
     # Generate the podcast audio
-    with console.status('[bold green] Generating audio...[/bold green]'):
+    with console.status("[bold green] Generating audio...[/bold green]"):
         tts_engine = get_text_to_speech_engine(config.tts)
         audio_segments = [tts_engine.process_segment(dialogue) for dialogue in script.dialogues]
 
@@ -52,17 +51,18 @@ def main():
 
         podcast_path = f"{output_dir}/podcast_{hashlib.md5(config.content.source.encode()).hexdigest()}.mp3"
         tts_engine.generate_audio_file(audio_segments, podcast_path)
-    console.log(f'Podcast file {podcast_path} generated...')
+    console.log(f"Podcast file {podcast_path} generated...")
 
-    with console.status('[bold green] Publishing podcast...[/bold green]'):
+    with console.status("[bold green] Publishing podcast...[/bold green]"):
         storage = get_storage(config.storage)
-        db = PodcastDB(db_path='assets/podcasts.db')
+        db = PodcastDB(db_path="assets/podcasts.db")
         publisher = PodcastPublisher(
             storage=storage,
             db=db,
-            base_url=f"https://{storage.custom_domain}",  # @FIXME: we need to fallback when custom domain is not available
+            # @FIXME: we need to fallback when custom domain is not available
+            base_url=f"https://{storage.custom_domain}",
         )
-        feed_url = publisher.create_feed(
+        publisher.create_feed(
             slug=config.feed.slug,
             title=config.feed.title,
             email=config.feed.email,
@@ -73,14 +73,14 @@ def main():
             language=config.feed.language,
             categories=",".join(config.feed.categories),
         )
-        console.log('Uploading episode...')
+        console.log("Uploading episode...")
         urls = publisher.add_episode(
             feed_slug=config.feed.slug,
             audio_file_path=podcast_path,
             metadata=PodcastMetadata(
                 title=script.title,
                 description=script.description,
-            )
+            ),
         )
     console.print(f"Feed published at {urls['feed_url']}")
     console.print(f"Episode published at {urls['episode_url']}")

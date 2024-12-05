@@ -20,11 +20,15 @@ def load_content(content_config: ContentConfig) -> Document:
 
 
 def fetch_url(url) -> Document:
-    headers = { "Accept": "application/json" }
+    headers = {"Accept": "application/json"}
     response = requests.get(f"https://r.jina.ai/{url}", headers=headers)
     # @TODO: Add error handling
     content = response.json()
-    return Document(title=content['data']['title'], content=content['data']['content'], metadata={
-        'url': content['data']['url'],
-        'description': content['data']['description'],
-    })
+    return Document(
+        title=content["data"]["title"],
+        content=content["data"]["content"],
+        metadata={
+            "url": content["data"]["url"],
+            "description": content["data"]["description"],
+        },
+    )

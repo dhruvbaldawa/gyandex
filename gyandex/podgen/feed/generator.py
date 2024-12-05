@@ -38,9 +38,7 @@ class PodcastFeedGenerator:
             fg.image(feed_data.image_url)
 
         # iTunes specific tags
-        fg.podcast.itunes_category(
-            feed_data.categories.split(",")[0] if feed_data.categories else "Technology"
-        )
+        fg.podcast.itunes_category(feed_data.categories.split(",")[0] if feed_data.categories else "Technology")
         fg.podcast.itunes_explicit(feed_data.explicit)
         fg.podcast.itunes_author(feed_data.author)
         fg.podcast.itunes_owner(name=feed_data.author, email=feed_data.email)
@@ -61,9 +59,7 @@ class PodcastFeedGenerator:
             fe.enclosure(episode.audio_url, str(episode.file_size), episode.mime_type)
 
             # iTunes specific episode tags
-            fe.podcast.itunes_duration(
-                str(episode.duration) if episode.duration else "0"
-            )
+            fe.podcast.itunes_duration(str(episode.duration) if episode.duration else "0")
             fe.podcast.itunes_explicit(episode.explicit)
             if episode.image_url:
                 fe.podcast.itunes_image(episode.image_url)

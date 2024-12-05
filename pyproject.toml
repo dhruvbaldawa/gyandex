@@ -7,7 +7,7 @@ license = "AGPL-3.0-or-later"
 readme = "README.md"
 
 [tool.poetry.scripts]
-podgen = "gyandex.cli.podgen:main"
+podgen = "gyandex.cli.genpod:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -33,6 +33,7 @@ pytest-mock = "^3.14.0"
 pytest-cov = "^5.0.0"
 rust-just = "^1.36.0"
 responses = "^0.25.3"
+ruff = "^0.8.2"
 
 [project.classifiers]
 license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"
@@ -40,3 +41,13 @@ license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+# Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that
+# overlap with the use of a formatter, like Black, but we can override this behavior by
+# explicitly adding the rule.
+extend-select = ["E501"]

@@ -1,9 +1,6 @@
 import pytest
-from datetime import datetime
 from unittest.mock import Mock, patch
-import os
 from .publisher import PodcastPublisher, PodcastMetadata
-from ..feed.models_test import test_db  # @todo: move to common fixtures
 from ..storage.s3 import S3CompatibleStorage
 
 
@@ -85,7 +82,8 @@ def test_add_episode(orchestrator, mock_storage, sample_audio, mock_mutagen):
     mock_storage.upload_file.reset_mock()
 
     metadata = PodcastMetadata(
-        title="Test Episode", description="Test Episode Description",
+        title="Test Episode",
+        description="Test Episode Description",
     )
 
     mock_storage.upload_file.side_effect = [
@@ -109,9 +107,7 @@ def test_add_episode_to_nonexistent_feed(orchestrator, sample_audio):
     Then: ValueError should be raised
     """
     # Given
-    metadata = PodcastMetadata(
-        title="Test Episode", description="Test Episode Description"
-    )
+    metadata = PodcastMetadata(title="Test Episode", description="Test Episode Description")
 
     # When/Then
     with pytest.raises(ValueError):

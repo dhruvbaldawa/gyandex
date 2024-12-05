@@ -3,6 +3,7 @@ from typing import Union
 from gyandex.podgen.config.schema import S3StorageConfig
 from gyandex.podgen.storage.s3 import S3CompatibleStorage
 
+
 # @TODO: Centralize this type and move this to a common place
 def get_storage(config: Union[S3StorageConfig]) -> S3CompatibleStorage:
     if config.provider != "s3":  # @TODO: Move this to a enum

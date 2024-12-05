@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Optional, Union, Literal
+from typing import List, Optional, Union, Literal
 
 from pydantic import BaseModel, HttpUrl, Field
 
@@ -46,7 +46,7 @@ class Participant(BaseModel):
     name: str
     voice: str
     gender: Gender
-    personality: Optional[str] = ''
+    personality: Optional[str] = ""
     language_code: Optional[str] = "en-US"
 
 

@@ -38,9 +38,7 @@ class S3CompatibleStorage:
         self.acl = acl
 
         # Configure the S3 client with a generous timeout
-        config = Config(
-            connect_timeout=10, read_timeout=30, retries={"max_attempts": 3}
-        )
+        config = Config(connect_timeout=10, read_timeout=30, retries={"max_attempts": 3})
 
         self.client = boto3.client(
             "s3",
@@ -80,9 +78,7 @@ class S3CompatibleStorage:
         if metadata:
             extra_args["Metadata"] = metadata
 
-        self.client.upload_file(
-            file_path, self.bucket, destination_path, ExtraArgs=extra_args
-        )
+        self.client.upload_file(file_path, self.bucket, destination_path, ExtraArgs=extra_args)
 
         return self.get_public_url(destination_path)
 

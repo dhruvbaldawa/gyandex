@@ -2,11 +2,6 @@ import pytest
 import xml.etree.ElementTree as ET
 
 from .generator import PodcastFeedGenerator
-from .models_test import (
-    test_db,
-    sample_feed_data,
-    sample_episode_data,
-)  # @todo: move to common fixtures
 
 # Feed Generator Tests
 
@@ -19,7 +14,7 @@ def test_generate_feed_xml(test_db, sample_feed_data, sample_episode_data):
     """
     # Given
     feed = test_db.create_feed(**sample_feed_data)
-    episode = test_db.add_episode(feed.slug, **sample_episode_data)
+    _ = test_db.add_episode(feed.slug, **sample_episode_data)
 
     # When
     generator = PodcastFeedGenerator(test_db)
@@ -59,7 +54,7 @@ def test_feed_episode_enclosure(test_db, sample_feed_data, sample_episode_data):
     """
     # Given
     feed = test_db.create_feed(**sample_feed_data)
-    episode = test_db.add_episode(feed.slug, **sample_episode_data)
+    _ = test_db.add_episode(feed.slug, **sample_episode_data)
 
     # When
     generator = PodcastFeedGenerator(test_db)

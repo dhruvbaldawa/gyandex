@@ -10,6 +10,7 @@ from ..feed.generator import PodcastFeedGenerator
 from ..storage.s3 import S3CompatibleStorage
 from ..feed.models import PodcastDB, Episode
 
+
 # @TODO: Look at URL manipulation and how URLs are used between storage
 #   and feeds. There is possibly some duplication here.
 @dataclass
@@ -55,12 +56,8 @@ class PodcastPublisher:
         metadata = {}
 
         if audio is not None:
-            metadata["duration"] = (
-                int(audio.info.length) if hasattr(audio.info, "length") else None
-            )
-            metadata["mime_type"] = (
-                audio.mime[0] if hasattr(audio, "mime") and audio.mime else None
-            )
+            metadata["duration"] = int(audio.info.length) if hasattr(audio.info, "length") else None
+            metadata["mime_type"] = audio.mime[0] if hasattr(audio, "mime") and audio.mime else None
 
         metadata["file_size"] = os.path.getsize(file_path)
         return metadata
@@ -71,9 +68,7 @@ class PodcastPublisher:
             file_hash = hashlib.md5(f.read()).hexdigest()
         return f"{feed_slug}-{file_hash}"
 
-    def add_episode(
-        self, feed_slug: str, audio_file_path: str, metadata: PodcastMetadata
-    ) -> Dict[str, str]:
+    def add_episode(self, feed_slug: str, audio_file_path: str, metadata: PodcastMetadata) -> Dict[str, str]:
         """
         Add a new episode to a feed.
 
@@ -110,7 +105,7 @@ class PodcastPublisher:
         )
 
         # Add episode to database
-        episode = self.db.add_episode(
+        _ = self.db.add_episode(
             feed_slug=feed_slug,
             title=metadata.title,
             description=metadata.description,
@@ -143,9 +138,7 @@ class PodcastPublisher:
             f.write(feed_content)
         return temp_path
 
-    def create_feed(
-        self, slug: str, title: str, description: str, author: str, email: str, **kwargs
-    ) -> str:
+    def create_feed(self, slug: str, title: str, description: str, author: str, email: str, **kwargs) -> str:
         """
         Create a new podcast feed.
 
@@ -189,8 +182,6 @@ class PodcastPublisher:
         """Get the URL for a feed."""
         return urljoin(self.base_url, f"{self.feed_prefix}/{feed_slug}.xml")
 
-    def list_episodes(
-        self, feed_slug: str, limit: Optional[int] = None
-    ) -> list[Type[Episode]]:
+    def list_episodes(self, feed_slug: str, limit: Optional[int] = None) -> list[Type[Episode]]:
         """List episodes in a feed."""
         return self.db.get_episodes(feed_slug, limit)
