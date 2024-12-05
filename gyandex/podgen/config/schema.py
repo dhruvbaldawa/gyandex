@@ -29,6 +29,13 @@ class GoogleGenerativeAILLMConfig(BaseModel):
     google_api_key: str
 
 
+class AlexandriaWorkflowConfig(BaseModel):
+    name: Literal["alexandria"]
+    outline: Union[GoogleGenerativeAILLMConfig]
+    script: Union[GoogleGenerativeAILLMConfig]
+    verbose: Optional[bool] = False
+
+
 class Gender(Enum):
     MALE = "male"
     FEMALE = "female"
@@ -83,8 +90,7 @@ class ContentStructure(BaseModel):
 class PodcastConfig(BaseModel):
     version: str
     content: ContentConfig
-    # @TODO: Rethink this because I would like to use multiple LLMs for optimizing costs
-    llm: Union[GoogleGenerativeAILLMConfig] = Field(discriminator="provider")
+    workflow: Union[AlexandriaWorkflowConfig] = Field(discriminator="name")
     tts: Union[GoogleCloudTTSConfig] = Field(discriminator="provider")
     storage: Union[S3StorageConfig] = Field(discriminator="provider")
     feed: FeedConfig

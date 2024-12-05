@@ -5,7 +5,7 @@ from google.cloud import texttospeech
 from pydub import AudioSegment
 
 from ..config.schema import Participant, Gender
-from ..engine.workflows import ScriptSegment  # @TODO: Pull this out of workflows
+from ..workflows.types import ScriptSegment  # @TODO: Pull this out of workflows
 
 
 class GoogleTTSEngine:

@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import hashlib
 import os
 
@@ -10,9 +11,9 @@ from gyandex.loaders.factory import load_content
 from gyandex.podgen.engine.publisher import PodcastPublisher, PodcastMetadata
 from gyandex.podgen.feed.models import PodcastDB
 from gyandex.podgen.config.loader import load_config
-from gyandex.podgen.engine.workflows import generate_podcast
 from gyandex.podgen.speech.factory import get_text_to_speech_engine
 from gyandex.podgen.storage.factory import get_storage
+from gyandex.podgen.workflows.factory import get_workflow
 
 
 def main():
@@ -28,7 +29,6 @@ def main():
         return
     console = Console()
     config = load_config(args.config_path)
-    model = get_model(config.llm)
 
     # Load the content
     with console.status('[bold green] Loading content...[/bold green]'):
@@ -37,13 +37,14 @@ def main():
 
     # Analyze the content
     with console.status('[bold green] Crafting the script...[/bold green]'):
-        script = generate_podcast(model, document)  # attach callback to see the progress
-    console.log(f'Script completed for "{script.title}". Script contains {len(script.segments)} segments...')
+        workflow = get_workflow(config)
+        script = asyncio.run(workflow.generate_script(document))
+    console.log(f'Script completed for "{script.title}". Script contains {len(script.dialogues)} segments...')
 
     # Generate the podcast audio
     with console.status('[bold green] Generating audio...[/bold green]'):
         tts_engine = get_text_to_speech_engine(config.tts)
-        audio_segments = [tts_engine.process_segment(segment) for segment in script.segments]
+        audio_segments = [tts_engine.process_segment(dialogue) for dialogue in script.dialogues]
 
         # Create output directory
         output_dir = f"generated_podcasts/{config.feed.slug}"
@@ -81,5 +82,5 @@ def main():
                 description=script.description,
             )
         )
-    console.log(f"Feed published at {urls['feed_url']}")
-    console.log(f"Episode published at {urls['episode_url']}")
+    console.print(f"Feed published at {urls['feed_url']}")
+    console.print(f"Episode published at {urls['episode_url']}")
