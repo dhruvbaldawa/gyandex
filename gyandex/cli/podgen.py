@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from rich.console import Console
 
 from gyandex.loaders.factory import load_content
-from gyandex.podgen.engine.publisher import PodcastPublisher, PodcastMetadata
-from gyandex.podgen.feed.models import PodcastDB
 from gyandex.podgen.config.loader import load_config
+from gyandex.podgen.engine.publisher import PodcastMetadata, PodcastPublisher
+from gyandex.podgen.feed.models import PodcastDB
 from gyandex.podgen.speech.factory import get_text_to_speech_engine
 from gyandex.podgen.storage.factory import get_storage
 from gyandex.podgen.workflows.factory import get_workflow

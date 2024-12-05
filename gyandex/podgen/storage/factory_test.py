@@ -1,9 +1,9 @@
 import pytest
 from pydantic import ValidationError
 
-from gyandex.podgen.config.schema import S3StorageConfig
-from gyandex.podgen.storage.factory import get_storage
-from gyandex.podgen.storage.s3 import S3CompatibleStorage
+from ..config.schema import S3StorageConfig
+from .factory import get_storage
+from .s3 import S3CompatibleStorage
 
 
 def test_get_storage_returns_s3_storage():

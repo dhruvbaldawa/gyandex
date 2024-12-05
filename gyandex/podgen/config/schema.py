@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import List, Optional, Union, Literal
+from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 # @TODO: Redo this, the content format can be better structured

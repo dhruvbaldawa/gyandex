@@ -1,13 +1,14 @@
+import asyncio
+from typing import List, Union
+
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
-from typing import List, Union
-import asyncio
 from rich import print as rprint
 
-from .types import PodcastOutline, ScriptSegment, PodcastEpisode, OutlineSegment
 from ...llms.factory import get_model
-from ..config.schema import PodcastConfig, GoogleGenerativeAILLMConfig, Participant
 from ...loaders.factory import Document
+from ..config.schema import GoogleGenerativeAILLMConfig, Participant, PodcastConfig
+from .types import OutlineSegment, PodcastEpisode, PodcastOutline, ScriptSegment
 
 
 class OutlineGenerator:

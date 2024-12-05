@@ -1,12 +1,13 @@
-from typing import Optional, Type, Tuple
+from typing import Optional, Tuple, Type
+
 from sqlalchemy import (
-    create_engine,
     Column,
-    Integer,
-    String,
     DateTime,
     ForeignKey,
+    Integer,
+    String,
     Text,
+    create_engine,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from sqlalchemy.sql import func

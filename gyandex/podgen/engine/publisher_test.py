@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import Mock, patch
-from .publisher import PodcastPublisher, PodcastMetadata
+
+import pytest
+
 from ..storage.s3 import S3CompatibleStorage
+from .publisher import PodcastMetadata, PodcastPublisher
 
 
 @pytest.fixture

@@ -1,8 +1,9 @@
-from typing import Optional, Dict, Any
-import boto3
-from botocore.client import Config
 import mimetypes
 import os
+from typing import Any, Dict, Optional
+
+import boto3
+from botocore.client import Config
 
 
 class S3CompatibleStorage:

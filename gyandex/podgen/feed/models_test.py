@@ -1,7 +1,8 @@
 import os
+
 import pytest
 
-from .models import PodcastDB, Feed
+from .models import Feed, PodcastDB
 
 
 @pytest.fixture

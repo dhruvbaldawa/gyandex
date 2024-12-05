@@ -1,10 +1,10 @@
 from io import BytesIO
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from google.cloud import texttospeech
 from pydub import AudioSegment
 
-from ..config.schema import Participant, Gender
+from ..config.schema import Gender, Participant
 from ..workflows.types import ScriptSegment  # @TODO: Pull this out of workflows
 
 

@@ -1,7 +1,9 @@
 from unittest.mock import Mock, patch
+
 from google.cloud import texttospeech
-from gyandex.podgen.processors.tts import GoogleTTSEngine
-from gyandex.podgen.engine.workflows import ScriptSegment
+
+from ..speech.google_cloud import GoogleTTSEngine
+from ..workflows.types import ScriptSegment
 
 
 def test_tts_engine_initialization():

@@ -1,7 +1,7 @@
 from typing import Union
 
-from .alexandria import AlexandriaWorkflow
 from ..config.schema import PodcastConfig
+from .alexandria import AlexandriaWorkflow
 
 
 def get_workflow(config: PodcastConfig) -> Union[AlexandriaWorkflow]:

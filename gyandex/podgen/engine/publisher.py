@@ -1,14 +1,15 @@
-from typing import Optional, Dict, Any, Type
-import os
 import hashlib
-from datetime import datetime
-import mutagen
+import os
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, Optional, Type
 from urllib.parse import urljoin
 
+import mutagen
+
 from ..feed.generator import PodcastFeedGenerator
+from ..feed.models import Episode, PodcastDB
 from ..storage.s3 import S3CompatibleStorage
-from ..feed.models import PodcastDB, Episode
 
 
 # @TODO: Look at URL manipulation and how URLs are used between storage

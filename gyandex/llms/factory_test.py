@@ -2,8 +2,8 @@ import pytest
 from langchain_google_genai import GoogleGenerativeAI
 from pydantic import ValidationError
 
-from gyandex.llms.factory import get_model
-from gyandex.podgen.config.schema import GoogleGenerativeAILLMConfig
+from ..podgen.config.schema import GoogleGenerativeAILLMConfig
+from .factory import get_model
 
 
 def test_get_model_returns_google_generative_ai():

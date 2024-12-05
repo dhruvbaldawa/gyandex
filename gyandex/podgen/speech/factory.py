@@ -1,7 +1,7 @@
 from typing import Union
 
-from .google_cloud import GoogleTTSEngine
 from ..config.schema import GoogleCloudTTSConfig
+from .google_cloud import GoogleTTSEngine
 
 
 # @TODO: Centralize this type and move this to a common place

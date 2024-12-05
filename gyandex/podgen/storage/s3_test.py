@@ -1,6 +1,8 @@
+from unittest.mock import ANY, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, ANY
 from botocore.exceptions import ClientError
+
 from .s3 import S3CompatibleStorage
 
 

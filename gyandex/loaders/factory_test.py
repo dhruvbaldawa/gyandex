@@ -1,5 +1,6 @@
 import responses
-from gyandex.loaders.factory import fetch_url
+
+from .factory import fetch_url
 
 
 @responses.activate

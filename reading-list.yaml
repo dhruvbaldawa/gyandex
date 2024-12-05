@@ -1,0 +1,61 @@
+version: "1.0"
+content:
+#  source: "https://notes.mtb.xyz/p/invisible-asymptotes-vertical-software"
+  source: "https://learnings.aleixmorgadas.dev/p/dealing-with-teams-with-competing"
+  format: "html"
+
+workflow:
+  name: alexandria
+  verbose: true
+  outline:
+    provider: "google-generative-ai"
+    model: "gemini-1.5-pro"
+    temperature: 0.4
+    google_api_key: "${GOOGLE_API_KEY}"
+  script:
+    provider: "google-generative-ai"
+    model: "gemini-1.5-flash"
+    temperature: 0.8
+    google_api_key: "${GOOGLE_API_KEY}"
+
+tts:
+  provider: "google-cloud"
+  participants:
+    - name: Sarah
+      personality: |
+        An enthusiastic and knowledgeable tech journalist with 10 years of experience.
+        Style: Articulate, engaging, asks insightful questions, and guides the conversation smoothly.
+      voice: en-US-Journey-F
+      language_code: en-US
+#      voice: en-GB-Neural2-N
+#      language_code: en-GB
+      gender: female
+    - name: Mike
+      personality: |
+        A practical industry expert with hands-on experience.
+        Style: Down-to-earth, provides real-world examples, occasionally humorous, and good at breaking down complex topics.
+      voice: en-US-Journey-D
+      language_code: en-US
+#      voice: en-GB-Neural2-O
+#      language_code: en-GB
+      gender: male
+
+storage:
+  provider: "s3"
+  access_key: "${ACCESS_KEY_ID}"
+  secret_key: "${SECRET_ACCESS_KEY}"
+  bucket: "gyandex"
+  region: "us-east-1"
+  endpoint: "https://675f4b8193843a14b144c70d7a440064.r2.cloudflarestorage.com"
+  custom_domain: "pub-347a2b64a84a441c97338968c27696c5.r2.dev"
+
+feed:
+  title: "Gyandex: Tech Reading"
+  slug: "reading-list"
+  description: "Technical reading list curated by Dhruv Baldawa"
+  author: "Dhruv Baldawa"
+  email: "me@dhruvb.com"
+  language: "en"
+  categories: ["Technology", "Software Development", "Programming"]
+  image: "https://images.pexels.com/photos/26730962/pexels-photo-26730962.jpeg?cs=srgb&dl=pexels-helloaesthe-26730962.jpg&fm=jpg&w=640&h=960"
+  website: "https://github.com/dhruvbaldawa/gyandex"
