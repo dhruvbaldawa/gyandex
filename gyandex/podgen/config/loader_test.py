@@ -69,22 +69,36 @@ def test_load_config_parses_yaml_with_env_vars(tmp_path):
     content:
       format: html
       source: https://example.com/feed
-    llm:
-      provider: google-generative-ai
-      google_api_key: test_api_key
-      model: gpt-3.5-turbo
-      temperature: 1
-      max_tokens: 1000
-      script_template: test_template
-      system_prompt: test_prompt
+    workflow:
+      name: alexandria
+      verbose: true
+      outline:
+        provider: "google-generative-ai"
+        model: "gemini-1.5-pro"
+        temperature: 0.4
+        google_api_key: "xxx"
+      script:
+        provider: "google-generative-ai"
+        model: "gemini-1.5-flash"
+        temperature: 0.8
+        google_api_key: "xxx"
     tts:
-      provider: test
-      default_voice: test_voice
-      voices:
-        test_voice:
-          voice_id: test_voice_id
-          speaking_rate: 1.0
-          pitch: 100
+      provider: "google-cloud"
+      participants:
+        - name: Sarah
+          personality: |
+            An enthusiastic and knowledgeable tech journalist with 10 years of experience.
+            Style: Articulate, engaging, asks insightful questions, and guides the conversation smoothly.
+          voice: en-US-Journey-F
+          language_code: en-US
+          gender: female
+        - name: Mike
+          personality: |
+            A practical industry expert with hands-on experience.
+            Style: Down-to-earth, provides real-world examples, occasionally humorous, and good at breaking down complex topics.
+          voice: en-US-Journey-D
+          language_code: en-US
+          gender: male
     storage:
       provider: s3
       bucket: test_bucket

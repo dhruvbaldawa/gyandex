@@ -33,7 +33,7 @@ def test_get_storage_raises_for_unsupported_provider():
     # When/Then
     with pytest.raises(ValidationError):
         _ = S3StorageConfig(
-            provider="s3",
+            provider="unsupported",
             bucket="test-bucket",
             access_key="test-access-key",
             secret_key="test-secret-key",
