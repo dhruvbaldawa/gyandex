@@ -1,35 +1,40 @@
 from io import BytesIO
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
 from google.cloud import texttospeech
 from pydub import AudioSegment
 
-from gyandex.podgen.engine.workflows import PodcastSegment  # @TODO: Pull this out of workflows
+from ..config.schema import Participant, Gender
+from ..workflows.types import ScriptSegment  # @TODO: Pull this out of workflows
 
 
-class TTSEngine:
-    # @TODO: Accept configuration to tweak the voice
-    def __init__(self):
+class GoogleTTSEngine:
+    def __init__(self, participants: List[Participant]):
         self.client = texttospeech.TextToSpeechClient()
-        self.voices = {
-            'HOST1': texttospeech.VoiceSelectionParams(
-                language_code='en-US',
-                name='en-US-Journey-D',
-                ssml_gender=texttospeech.SsmlVoiceGender.MALE
-            ),
-            'HOST2': texttospeech.VoiceSelectionParams(
-                language_code='en-US',
-                name='en-US-Journey-O',
-                ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
-            )
-        }
+        self.voices = self.generate_voice_profile(participants)
         self.audio_config = texttospeech.AudioConfig(
             audio_encoding=texttospeech.AudioEncoding.MP3,
             effects_profile_id=['headphone-class-device']
         )
 
-    def process_segment(self, segment: PodcastSegment) -> bytes:
-        # ssml = self.generate_ssml(segment)
+    def generate_voice_profile(self, participants: List[Participant]) -> Dict[str, Any]:
+        def resolve_gender(gender: Gender):
+            if gender == Gender.FEMALE:
+                return texttospeech.SsmlVoiceGender.FEMALE
+            elif gender == Gender.MALE:
+                return texttospeech.SsmlVoiceGender.MALE
+            return texttospeech.SsmlVoiceGender.NEUTRAL
+
+        return {
+            participant.name: texttospeech.VoiceSelectionParams(
+                language_code=participant.language_code,
+                name=participant.voice,
+                ssml_gender=resolve_gender(participant.gender),
+            )
+            for participant in participants
+        }
+
+    def process_segment(self, segment: ScriptSegment) -> bytes:
         return self.synthesize_speech(segment.text, segment.speaker)
 
     def synthesize_speech(self, text: str, speaker: str) -> bytes:

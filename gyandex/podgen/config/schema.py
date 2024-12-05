@@ -29,16 +29,30 @@ class GoogleGenerativeAILLMConfig(BaseModel):
     google_api_key: str
 
 
-class VoiceProfile(BaseModel):
-    voice_id: str
-    speaking_rate: float
-    pitch: int
+class AlexandriaWorkflowConfig(BaseModel):
+    name: Literal["alexandria"]
+    outline: Union[GoogleGenerativeAILLMConfig]
+    script: Union[GoogleGenerativeAILLMConfig]
+    verbose: Optional[bool] = False
 
 
-class TTSConfig(BaseModel):
-    provider: str
-    default_voice: str
-    voices: Dict[str, VoiceProfile]
+class Gender(Enum):
+    MALE = "male"
+    FEMALE = "female"
+    NON_BINARY = "non-binary"
+
+
+class Participant(BaseModel):
+    name: str
+    voice: str
+    gender: Gender
+    personality: Optional[str] = ''
+    language_code: Optional[str] = "en-US"
+
+
+class GoogleCloudTTSConfig(BaseModel):
+    provider: Literal["google-cloud"]
+    participants: List[Participant]
 
 
 class S3StorageConfig(BaseModel):
@@ -76,8 +90,7 @@ class ContentStructure(BaseModel):
 class PodcastConfig(BaseModel):
     version: str
     content: ContentConfig
-    # @TODO: Rethink this because I would like to use multiple LLMs for optimizing costs
-    llm: Union[GoogleGenerativeAILLMConfig] = Field(discriminator="provider")
-    tts: TTSConfig
+    workflow: Union[AlexandriaWorkflowConfig] = Field(discriminator="name")
+    tts: Union[GoogleCloudTTSConfig] = Field(discriminator="provider")
     storage: Union[S3StorageConfig] = Field(discriminator="provider")
     feed: FeedConfig
