@@ -40,13 +40,13 @@ class LLMLoggingCallback(BaseCallbackHandler):
 
 
 # @TODO: Centralize this argument type in a single place
-def get_model(config: Union[GoogleGenerativeAILLMConfig], log_dir="assets"):
+def get_model(config: Union[GoogleGenerativeAILLMConfig], log_dir="assets"):  # pyright: ignore [reportInvalidTypeArguments]
     if config.provider == "google-generative-ai":
         return GoogleGenerativeAI(
             model=config.model,
             temperature=config.temperature,
-            google_api_key=config.google_api_key,
-            max_output_tokens=8192,  # @TODO: Move this to config params
+            google_api_key=config.google_api_key,  # pyright: ignore [reportCallIssue]
+            max_output_tokens=8192,  # @TODO: Move this to config params  # pyright: ignore [reportCallIssue]
             callbacks=[LLMLoggingCallback(log_dir)],
         )
     else:

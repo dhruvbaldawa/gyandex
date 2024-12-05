@@ -12,7 +12,7 @@ from .types import OutlineSegment, PodcastEpisode, PodcastOutline, ScriptSegment
 
 
 class OutlineGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig]):
+    def __init__(self, config: Union[GoogleGenerativeAILLMConfig]):  # pyright: ignore [reportInvalidTypeArguments]
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=PodcastOutline)
@@ -51,7 +51,7 @@ class OutlineGenerator:
 
 
 class ScriptGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig], participants: List[Participant]):
+    def __init__(self, config: Union[GoogleGenerativeAILLMConfig], participants: List[Participant]):  # pyright: ignore [reportInvalidTypeArguments]
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=ScriptSegment)
@@ -191,7 +191,7 @@ class AlexandriaWorkflow:
                 rprint(f"Transition: {segment.transition}\n")
 
         # Generate script segments
-        script_segments = await script_gen.generate_full_script(outline, document)
+        script_segments = await script_gen.generate_full_script(outline, document.content)
 
         if self.config.workflow.verbose:
             # Print results in dialogue format

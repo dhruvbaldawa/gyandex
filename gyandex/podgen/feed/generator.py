@@ -35,15 +35,15 @@ class PodcastFeedGenerator:
         fg.language(feed_data.language)
         fg.copyright(feed_data.copyright)
 
-        if feed_data.image_url:
+        if feed_data.image_url is not None:
             fg.logo(feed_data.image_url)
             fg.image(feed_data.image_url)
 
         # iTunes specific tags
-        fg.podcast.itunes_category(feed_data.categories.split(",")[0] if feed_data.categories else "Technology")
-        fg.podcast.itunes_explicit(feed_data.explicit)
-        fg.podcast.itunes_author(feed_data.author)
-        fg.podcast.itunes_owner(name=feed_data.author, email=feed_data.email)
+        fg.podcast.itunes_category(feed_data.categories.split(",")[0] if feed_data.categories else "Technology")  # pyright: ignore [reportAttributeAccessIssue, reportGeneralTypeIssues]
+        fg.podcast.itunes_explicit(feed_data.explicit)  # pyright: ignore [reportAttributeAccessIssue, reportGeneralTypeIssues]
+        fg.podcast.itunes_author(feed_data.author)  # pyright: ignore [reportAttributeAccessIssue, reportGeneralTypeIssues]
+        fg.podcast.itunes_owner(name=feed_data.author, email=feed_data.email)  # pyright: ignore [reportAttributeAccessIssue, reportGeneralTypeIssues]
 
         # Add episodes
         episodes = self.db.get_episodes(slug)
@@ -61,14 +61,14 @@ class PodcastFeedGenerator:
             fe.enclosure(episode.audio_url, str(episode.file_size), episode.mime_type)
 
             # iTunes specific episode tags
-            fe.podcast.itunes_duration(str(episode.duration) if episode.duration else "0")
-            fe.podcast.itunes_explicit(episode.explicit)
-            if episode.image_url:
-                fe.podcast.itunes_image(episode.image_url)
-            if episode.episode_number:
-                fe.podcast.itunes_episode(str(episode.episode_number))
-            if episode.season_number:
-                fe.podcast.itunes_season(str(episode.season_number))
-            fe.podcast.itunes_episode_type(episode.episode_type)
+            fe.podcast.itunes_duration(str(episode.duration) if episode.duration is not None else "0")  # pyright: ignore [reportAttributeAccessIssue]
+            fe.podcast.itunes_explicit(episode.explicit)  # pyright: ignore [reportAttributeAccessIssue]
+            if episode.image_url is not None:
+                fe.podcast.itunes_image(episode.image_url)  # pyright: ignore [reportAttributeAccessIssue]
+            if episode.episode_number is not None:
+                fe.podcast.itunes_episode(str(episode.episode_number))  # pyright: ignore [reportAttributeAccessIssue]
+            if episode.season_number is not None:
+                fe.podcast.itunes_season(str(episode.season_number))  # pyright: ignore [reportAttributeAccessIssue]
+            fe.podcast.itunes_episode_type(episode.episode_type)  # pyright: ignore [reportAttributeAccessIssue]
 
         return fg.rss_str(pretty=True).decode("utf-8")

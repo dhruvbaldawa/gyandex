@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Type
+from typing import Optional, Sequence, Tuple
 
 from sqlalchemy import (
     Column,
@@ -120,7 +120,7 @@ class PodcastDB:
             return episode
 
     # @TODO: Update using the feed id, instead of name
-    def get_episodes(self, feed_slug: str, limit: int = None) -> list[Type[Episode]]:
+    def get_episodes(self, feed_slug: str, limit: Optional[int] = None) -> Sequence[Episode]:
         with self.session() as session:
             query = (
                 session.query(Episode)

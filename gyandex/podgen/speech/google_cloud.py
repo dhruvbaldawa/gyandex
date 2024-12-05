@@ -5,7 +5,7 @@ from google.cloud import texttospeech
 from pydub import AudioSegment
 
 from ..config.schema import Gender, Participant
-from ..workflows.types import ScriptSegment  # @TODO: Pull this out of workflows
+from ..workflows.types import DialogueLine  # @TODO: Pull this out of workflows
 
 
 class GoogleTTSEngine:
@@ -33,7 +33,7 @@ class GoogleTTSEngine:
             for participant in participants
         }
 
-    def process_segment(self, segment: ScriptSegment) -> bytes:
+    def process_segment(self, segment: DialogueLine) -> bytes:
         return self.synthesize_speech(segment.text, segment.speaker)
 
     def synthesize_speech(self, text: str, speaker: str) -> bytes:

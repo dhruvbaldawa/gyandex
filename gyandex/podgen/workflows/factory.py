@@ -4,7 +4,7 @@ from ..config.schema import PodcastConfig
 from .alexandria import AlexandriaWorkflow
 
 
-def get_workflow(config: PodcastConfig) -> Union[AlexandriaWorkflow]:
+def get_workflow(config: PodcastConfig) -> Union[AlexandriaWorkflow]:  # pyright: ignore [reportInvalidTypeArguments]
     """Get workflow based on config"""
     if config.workflow.name == "alexandria":
         return AlexandriaWorkflow(config)

@@ -17,7 +17,7 @@ class S3CompatibleStorage:
         access_key_id: str,
         secret_access_key: str,
         endpoint_url: Optional[str] = None,
-        region_name: str = "auto",
+        region_name: Optional[str] = "auto",
         custom_domain: Optional[str] = None,
         acl: str = "public-read",
     ):
@@ -74,7 +74,7 @@ class S3CompatibleStorage:
             if not content_type:
                 content_type = "application/octet-stream"
 
-        extra_args = {"ACL": self.acl, "ContentType": content_type}
+        extra_args: Dict[str, Any] = {"ACL": self.acl, "ContentType": content_type}
 
         if metadata:
             extra_args["Metadata"] = metadata

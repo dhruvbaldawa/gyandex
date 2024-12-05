@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from google.cloud import texttospeech
 
 from ..speech.google_cloud import GoogleTTSEngine
-from ..workflows.types import ScriptSegment
+from ..workflows.types import DialogueLine, ScriptSegment
 
 
 def test_tts_engine_initialization():
@@ -39,7 +39,7 @@ def test_process_segment(mock_client):
     """Tests processing of a complete podcast segment"""
     # Given
     engine = GoogleTTSEngine()
-    segment = ScriptSegment(dialogue="Test segment", speaker="HOST1")
+    segment = ScriptSegment(dialogue=[DialogueLine(text="Test segment", speaker="HOST1")])
     mock_response = Mock()
     mock_response.audio_content = b"test_audio_content"
     mock_client.return_value.synthesize_speech.return_value = mock_response

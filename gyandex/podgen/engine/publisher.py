@@ -2,7 +2,7 @@ import hashlib
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Sequence
 from urllib.parse import urljoin
 
 import mutagen
@@ -53,7 +53,7 @@ class PodcastPublisher:
 
     def _get_audio_metadata(self, file_path: str) -> Dict[str, Any]:
         """Extract metadata from audio file."""
-        audio = mutagen.File(file_path)
+        audio = mutagen.File(file_path)  # pyright: ignore [reportPrivateImportUsage]
         metadata = {}
 
         if audio is not None:
@@ -183,6 +183,6 @@ class PodcastPublisher:
         """Get the URL for a feed."""
         return urljoin(self.base_url, f"{self.feed_prefix}/{feed_slug}.xml")
 
-    def list_episodes(self, feed_slug: str, limit: Optional[int] = None) -> list[Type[Episode]]:
+    def list_episodes(self, feed_slug: str, limit: Optional[int] = None) -> Sequence[Episode]:
         """List episodes in a feed."""
         return self.db.get_episodes(feed_slug, limit)

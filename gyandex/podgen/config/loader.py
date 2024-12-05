@@ -43,4 +43,4 @@ def load_config(config_path: str) -> PodcastConfig:
     config_dict = resolve_nested_env_vars(config_dict)
 
     # Parse with Pydantic
-    return PodcastConfig(**config_dict)
+    return PodcastConfig(**config_dict)  # pyright: ignore [reportCallIssue]

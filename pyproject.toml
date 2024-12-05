@@ -52,3 +52,19 @@ fix = true
 # overlap with the use of a formatter, like Black, but we can override this behavior by
 # explicitly adding the rule.
 extend-select = ["E501", "I"]
+
+[tool.pyright]
+include = ["gyandex"]
+exclude = [
+    "**/__pycache__",
+    "**/*_test.py",  # @FIXME: remove this once code issues are resolved
+]
+
+defineConstant = { DEBUG = true }
+
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+
+executionEnvironments = [
+    { root = "gyandex" }
+]
