@@ -6,7 +6,7 @@ from rich import print as rprint
 
 from .types import PodcastOutline, ScriptSegment, PodcastEpisode, OutlineSegment
 from ...llms.factory import get_model
-from ..config.schema import PodcastConfig, GoogleGenerativeAILLMConfig
+from ..config.schema import PodcastConfig, GoogleGenerativeAILLMConfig, Participant
 from ...loaders.factory import Document
 
 class OutlineGenerator:
@@ -27,7 +27,7 @@ class OutlineGenerator:
             5. Talking points should be mutually exclusive across segments
             6. Maintain natural conversation flow between segments
             7. Explore different perspectives, so that important topics are covered holistically
-
+            <title>{title}</title>
             <content>
             {content}
             </content>
@@ -43,32 +43,20 @@ class OutlineGenerator:
     def generate_outline(self, document: Document) -> PodcastOutline:
         """Generate structured podcast outline from content summary"""
         chain = self.outline_prompt | self.model | self.parser
-        response = chain.invoke({ "content": document.content })
+        response = chain.invoke({ "content": document.content, "title": document.title })
         return response
 
 class ScriptGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig]):
+    def __init__(self, config: Union[GoogleGenerativeAILLMConfig], participants: List[Participant]):
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=ScriptSegment)
-
-        # Define speaker personalities
-        self.host_profile = """
-        HOST (Sarah): An enthusiastic and knowledgeable tech journalist with 10 years of experience.
-        Style: Articulate, engaging, asks insightful questions, and guides the conversation smoothly.
-        """
-
-        self.co_host_profile = """
-        CO-HOST (Mike): A practical industry expert with hands-on experience.
-        Style: Down-to-earth, provides real-world examples, occasionally humorous, and good at breaking down complex topics.
-        """
 
         self.segment_prompt = PromptTemplate(
             input_variables=["segment_name", "talking_points", "duration", "source_content"],
             partial_variables={
                 "format_instructions": self.parser.get_format_instructions(),
-                "host_profile": self.host_profile,
-                "co_host_profile": self.co_host_profile
+                "host_profiles": "\n".join([self.create_host_profile(participant) for participant in participants]),
             },
             template="""
             You are the a world-class podcast writer, you have worked as a ghost writer for Joe Rogan, Lex Fridman, Ben Shapiro, Tim Ferris. 
@@ -77,14 +65,14 @@ class ScriptGenerator:
             
             IMPORTANT: You are generating dialogue for the {position}
 
-            Generate a podcast script segment as a dialogue between two hosts:
-
-            {host_profile}
-            {co_host_profile}
+            Generate a podcast script segment as a dialogue between the following hosts:
+            {host_profiles}
 
             SOURCE MATERIAL:
+            <content>
             {source_content}
-
+            </content>
+            
             SEGMENT DETAILS:
             Topic: {segment_name}
             Key Points: {talking_points}
@@ -113,6 +101,9 @@ class ScriptGenerator:
         )
 
         self.chain = self.segment_prompt | self.model | self.parser
+
+    def create_host_profile(self, participant: Participant):
+        return f"HOST ({participant.name})[{participant.gender}]: {participant.personality}"
 
     async def generate_segment_script(self,
                                       segment: OutlineSegment,
@@ -163,7 +154,7 @@ class AlexandriaWorkflow:
     async def generate_script(self, document: Document) -> PodcastEpisode:
         # Initialize components
         outline_gen = OutlineGenerator(self.config.workflow.outline)
-        script_gen = ScriptGenerator(self.config.workflow.script)
+        script_gen = ScriptGenerator(self.config.workflow.script, self.config.tts.participants)
 
         # Generate outline
         outline = outline_gen.generate_outline(document)

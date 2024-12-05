@@ -7,7 +7,7 @@ class OutlineSegment(BaseModel):
     name: str = Field(description="Name of the podcast segment")
     duration: int = Field(description="Duration of segment in minutes")
     talking_points: List[str] = Field(description="Key points to cover in this segment")
-    transition: str = Field(description="Transition text to the next segment", default="")
+    transition: str = Field(description="Transition text to the next segment. Use 'Closing remarks' if there is no transition", default="")
 
 class PodcastOutline(BaseModel):
     title: str = Field(description="Title of the podcast episode")
