@@ -1,12 +1,13 @@
-from typing import Optional, Type, Tuple
+from typing import Optional, Sequence, Tuple
+
 from sqlalchemy import (
-    create_engine,
     Column,
-    Integer,
-    String,
     DateTime,
     ForeignKey,
+    Integer,
+    String,
     Text,
+    create_engine,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from sqlalchemy.sql import func
@@ -33,9 +34,7 @@ class Feed(Base):
     updated_at = Column(DateTime, onupdate=func.now())
 
     # Relationship
-    episodes = relationship(
-        "Episode", back_populates="feed", cascade="all, delete-orphan"
-    )
+    episodes = relationship("Episode", back_populates="feed", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Feed(slug='{self.slug}', title='{self.title}')>"
@@ -46,17 +45,14 @@ class Feed(Base):
         """
         # Query the database to get the maximum episode number for the feed
         max_episode_number = (
-            session.query(func.max(Episode.episode_number))
-            .filter(Episode.feed_id == self.id)
-            .scalar()
+            session.query(func.max(Episode.episode_number)).filter(Episode.feed_id == self.id).scalar()
         ) or 0
 
         max_season_number = (
-            session.query(func.max(Episode.season_number))
-            .filter(Episode.feed_id == self.id)
-            .scalar()
+            session.query(func.max(Episode.season_number)).filter(Episode.feed_id == self.id).scalar()
         ) or 1
         return max_season_number, max_episode_number
+
 
 class Episode(Base):
     __tablename__ = "episodes"
@@ -103,9 +99,7 @@ class PodcastDB:
         with self.session() as session:
             return session.query(Feed).filter(Feed.slug == slug).first()
 
-    def add_episode(
-        self, feed_slug: str, title: str, audio_url: str, guid: str, **kwargs
-    ) -> Episode:
+    def add_episode(self, feed_slug: str, title: str, audio_url: str, guid: str, **kwargs) -> Episode:
         with self.session() as session:
             feed = session.query(Feed).filter(Feed.slug == feed_slug).first()
             if not feed:
@@ -126,7 +120,7 @@ class PodcastDB:
             return episode
 
     # @TODO: Update using the feed id, instead of name
-    def get_episodes(self, feed_slug: str, limit: int = None) -> list[Type[Episode]]:
+    def get_episodes(self, feed_slug: str, limit: Optional[int] = None) -> Sequence[Episode]:
         with self.session() as session:
             query = (
                 session.query(Episode)

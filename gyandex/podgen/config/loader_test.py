@@ -1,7 +1,10 @@
 import os
+
 import pytest
-from .loader import resolve_env_vars, resolve_nested_env_vars, load_config
+
+from .loader import load_config, resolve_env_vars, resolve_nested_env_vars
 from .schema import PodcastConfig
+
 
 def test_resolve_env_vars_replaces_single_variable():
     """Test that resolve_env_vars replaces a single environment variable in a string"""
@@ -14,6 +17,7 @@ def test_resolve_env_vars_replaces_single_variable():
 
     # Then
     assert result == "prefix_test_value_suffix"
+
 
 def test_resolve_env_vars_handles_multiple_variables():
     """Test that resolve_env_vars replaces multiple environment variables in a string"""
@@ -28,6 +32,7 @@ def test_resolve_env_vars_handles_multiple_variables():
     # Then
     assert result == "first_middle_second"
 
+
 def test_resolve_env_vars_raises_on_missing_variable():
     """Test that resolve_env_vars raises ValueError when environment variable is not found"""
     # Given
@@ -37,27 +42,19 @@ def test_resolve_env_vars_raises_on_missing_variable():
     with pytest.raises(ValueError, match="Environment variable NONEXISTENT_VAR not found"):
         resolve_env_vars(input_string)
 
+
 def test_resolve_nested_env_vars_handles_dict():
     """Test that resolve_nested_env_vars resolves variables in nested dictionary"""
     # Given
     os.environ["NESTED_VAR"] = "value"
-    input_dict = {
-        "key1": "${NESTED_VAR}",
-        "key2": {
-            "nested_key": "${NESTED_VAR}"
-        }
-    }
+    input_dict = {"key1": "${NESTED_VAR}", "key2": {"nested_key": "${NESTED_VAR}"}}
 
     # When
     result = resolve_nested_env_vars(input_dict)
 
     # Then
-    assert result == {
-        "key1": "value",
-        "key2": {
-            "nested_key": "value"
-        }
-    }
+    assert result == {"key1": "value", "key2": {"nested_key": "value"}}
+
 
 def test_load_config_parses_yaml_with_env_vars(tmp_path):
     """Test that load_config properly loads YAML and resolves environment variables"""
@@ -72,22 +69,37 @@ def test_load_config_parses_yaml_with_env_vars(tmp_path):
     content:
       format: html
       source: https://example.com/feed
-    llm:
-      provider: google-generative-ai
-      google_api_key: test_api_key
-      model: gpt-3.5-turbo
-      temperature: 1
-      max_tokens: 1000
-      script_template: test_template
-      system_prompt: test_prompt
+    workflow:
+      name: alexandria
+      verbose: true
+      outline:
+        provider: "google-generative-ai"
+        model: "gemini-1.5-pro"
+        temperature: 0.4
+        google_api_key: "xxx"
+      script:
+        provider: "google-generative-ai"
+        model: "gemini-1.5-flash"
+        temperature: 0.8
+        google_api_key: "xxx"
     tts:
-      provider: test
-      default_voice: test_voice
-      voices:
-        test_voice:
-          voice_id: test_voice_id
-          speaking_rate: 1.0
-          pitch: 100
+      provider: "google-cloud"
+      participants:
+        - name: Sarah
+          personality: |
+            An enthusiastic and knowledgeable tech journalist with 10 years of experience.
+            Style: Articulate, engaging, asks insightful questions, and guides the conversation smoothly.
+          voice: en-US-Journey-F
+          language_code: en-US
+          gender: female
+        - name: Mike
+          personality: |
+            A practical industry expert with hands-on experience.
+            Style: Down-to-earth, provides real-world examples, occasionally humorous, 
+            and good at breaking down complex topics.
+          voice: en-US-Journey-D
+          language_code: en-US
+          gender: male
     storage:
       provider: s3
       bucket: test_bucket

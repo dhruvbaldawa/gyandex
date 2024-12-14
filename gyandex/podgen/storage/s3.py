@@ -1,8 +1,9 @@
-from typing import Optional, Dict, Any
-import boto3
-from botocore.client import Config
 import mimetypes
 import os
+from typing import Any, Dict, Optional
+
+import boto3
+from botocore.client import Config
 
 
 class S3CompatibleStorage:
@@ -16,7 +17,7 @@ class S3CompatibleStorage:
         access_key_id: str,
         secret_access_key: str,
         endpoint_url: Optional[str] = None,
-        region_name: str = "auto",
+        region_name: Optional[str] = "auto",
         custom_domain: Optional[str] = None,
         acl: str = "public-read",
     ):
@@ -38,9 +39,7 @@ class S3CompatibleStorage:
         self.acl = acl
 
         # Configure the S3 client with a generous timeout
-        config = Config(
-            connect_timeout=10, read_timeout=30, retries={"max_attempts": 3}
-        )
+        config = Config(connect_timeout=10, read_timeout=30, retries={"max_attempts": 3})
 
         self.client = boto3.client(
             "s3",
@@ -75,14 +74,12 @@ class S3CompatibleStorage:
             if not content_type:
                 content_type = "application/octet-stream"
 
-        extra_args = {"ACL": self.acl, "ContentType": content_type}
+        extra_args: Dict[str, Any] = {"ACL": self.acl, "ContentType": content_type}
 
         if metadata:
             extra_args["Metadata"] = metadata
 
-        self.client.upload_file(
-            file_path, self.bucket, destination_path, ExtraArgs=extra_args
-        )
+        self.client.upload_file(file_path, self.bucket, destination_path, ExtraArgs=extra_args)
 
         return self.get_public_url(destination_path)
 

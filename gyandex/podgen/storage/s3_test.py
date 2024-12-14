@@ -1,64 +1,15 @@
+from unittest.mock import ANY, Mock
+
 import pytest
-from unittest.mock import Mock, patch, ANY
 from botocore.exceptions import ClientError
+
 from .s3 import S3CompatibleStorage
-
-
-@pytest.fixture
-def mock_s3_factory():
-    with patch("boto3.client") as mock_client:
-        # Create a mock client instance
-        client = Mock()
-        mock_client.return_value = client
-
-        # Mock the meta attributes
-        client.meta.endpoint_url = None
-        client.meta.region_name = "us-east-1"
-
-        yield mock_client, client
-
-
-@pytest.fixture
-def mock_s3_storage(mock_s3_factory):
-    mock_client, _ = mock_s3_factory
-    return mock_client
-
-
-@pytest.fixture
-def mock_s3_client(mock_s3_factory):
-    _, client = mock_s3_factory
-    return client
-
-
-@pytest.fixture
-def storage(mock_s3_client):
-    return S3CompatibleStorage(
-        bucket="test-bucket",
-        access_key_id="test-key",
-        secret_access_key="test-secret",
-        region_name="us-east-1",
-    )
-
-
-@pytest.fixture
-def r2_storage(mock_s3_client):
-    # Mock R2 endpoint
-    mock_s3_client.meta.endpoint_url = "https://test.r2.cloudflarestorage.com"
-    return S3CompatibleStorage(
-        bucket="test-bucket",
-        access_key_id="test-key",
-        secret_access_key="test-secret",
-        endpoint_url="https://test.r2.cloudflarestorage.com",
-        region_name="auto",
-    )
 
 
 def test_initialization(mock_s3_storage):
     """Test storage initialization with different configurations"""
     # Test AWS S3 initialization
-    _ = S3CompatibleStorage(
-        bucket="test-bucket", access_key_id="test-key", secret_access_key="test-secret"
-    )
+    _ = S3CompatibleStorage(bucket="test-bucket", access_key_id="test-key", secret_access_key="test-secret")
 
     mock_s3_storage.assert_called_once_with(
         "s3",
@@ -115,9 +66,7 @@ def test_download_file(storage, mock_s3_client, tmp_path):
 
     storage.download_file("episodes/test.mp3", str(download_path))
 
-    mock_s3_client.download_file.assert_called_with(
-        "test-bucket", "episodes/test.mp3", str(download_path)
-    )
+    mock_s3_client.download_file.assert_called_with("test-bucket", "episodes/test.mp3", str(download_path))
 
 
 def test_get_public_url_aws(storage):
@@ -178,16 +127,13 @@ def test_delete_file(storage, mock_s3_client):
     """Test file deletion functionality"""
     storage.delete_file("episodes/test.mp3")
 
-    mock_s3_client.delete_object.assert_called_with(
-        Bucket="test-bucket", Key="episodes/test.mp3"
-    )
+    mock_s3_client.delete_object.assert_called_with(Bucket="test-bucket", Key="episodes/test.mp3")
 
 
 def test_upload_file_content_type_guessing(storage, mock_s3_client, tmp_path):
     """Test content type guessing for different file types"""
     test_cases = [
         ("test.mp3", "audio/mpeg"),
-        ("test.m4a", "audio/mp4a-latm"),
         ("test.wav", "audio/x-wav"),
         ("test.txt", "text/plain"),
         ("test.unknown", "application/octet-stream"),

@@ -1,9 +1,10 @@
 import pytest
 from pydantic import ValidationError
 
-from gyandex.podgen.config.schema import S3StorageConfig
-from gyandex.podgen.storage.factory import get_storage
-from gyandex.podgen.storage.s3 import S3CompatibleStorage
+from ..config.schema import S3StorageConfig
+from .factory import get_storage
+from .s3 import S3CompatibleStorage
+
 
 def test_get_storage_returns_s3_storage():
     """Tests that get_storage creates an S3CompatibleStorage instance with correct config"""
@@ -15,7 +16,7 @@ def test_get_storage_returns_s3_storage():
         secret_key="test-secret-key",
         region="us-east-1",
         endpoint="https://test-endpoint",
-        custom_domain="cdn.example.com"
+        custom_domain="cdn.example.com",
     )
 
     # When
@@ -26,16 +27,17 @@ def test_get_storage_returns_s3_storage():
     assert storage.bucket == "test-bucket"
     assert storage.custom_domain == "cdn.example.com"
 
+
 def test_get_storage_raises_for_unsupported_provider():
     """Tests that get_storage raises NotImplementedError for unsupported providers"""
     # When/Then
     with pytest.raises(ValidationError):
-        config = S3StorageConfig(
+        _ = S3StorageConfig(
             provider="unsupported",
             bucket="test-bucket",
             access_key="test-access-key",
             secret_key="test-secret-key",
             region="us-east-1",
             endpoint="https://test-endpoint",
-            custom_domain="cdn.example.com"
+            custom_domain="cdn.example.com",
         )

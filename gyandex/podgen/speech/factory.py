@@ -1,11 +1,11 @@
 from typing import Union
 
-from .google_cloud import GoogleTTSEngine
 from ..config.schema import GoogleCloudTTSConfig
+from .google_cloud import GoogleTTSEngine
 
 
 # @TODO: Centralize this type and move this to a common place
-def get_text_to_speech_engine(tts_config: Union[GoogleCloudTTSConfig]):
+def get_text_to_speech_engine(tts_config: Union[GoogleCloudTTSConfig]):  # pyright: ignore [reportInvalidTypeArguments]
     if tts_config.provider == "google-cloud":
         return GoogleTTSEngine(tts_config.participants)
     else:

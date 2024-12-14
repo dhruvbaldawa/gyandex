@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Dict, List, Optional, Union, Literal
+from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 # @TODO: Redo this, the content format can be better structured
@@ -31,8 +31,8 @@ class GoogleGenerativeAILLMConfig(BaseModel):
 
 class AlexandriaWorkflowConfig(BaseModel):
     name: Literal["alexandria"]
-    outline: Union[GoogleGenerativeAILLMConfig]
-    script: Union[GoogleGenerativeAILLMConfig]
+    outline: Union[GoogleGenerativeAILLMConfig]  # pyright: ignore [reportInvalidTypeArguments]
+    script: Union[GoogleGenerativeAILLMConfig]  # pyright: ignore [reportInvalidTypeArguments]
     verbose: Optional[bool] = False
 
 
@@ -46,7 +46,7 @@ class Participant(BaseModel):
     name: str
     voice: str
     gender: Gender
-    personality: Optional[str] = ''
+    personality: Optional[str] = ""
     language_code: Optional[str] = "en-US"
 
 
@@ -90,7 +90,7 @@ class ContentStructure(BaseModel):
 class PodcastConfig(BaseModel):
     version: str
     content: ContentConfig
-    workflow: Union[AlexandriaWorkflowConfig] = Field(discriminator="name")
-    tts: Union[GoogleCloudTTSConfig] = Field(discriminator="provider")
-    storage: Union[S3StorageConfig] = Field(discriminator="provider")
+    workflow: Union[AlexandriaWorkflowConfig] = Field(discriminator="name")  # pyright: ignore [reportInvalidTypeArguments]
+    tts: Union[GoogleCloudTTSConfig] = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
+    storage: Union[S3StorageConfig] = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
     feed: FeedConfig
