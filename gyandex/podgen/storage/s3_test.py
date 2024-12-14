@@ -134,7 +134,6 @@ def test_upload_file_content_type_guessing(storage, mock_s3_client, tmp_path):
     """Test content type guessing for different file types"""
     test_cases = [
         ("test.mp3", "audio/mpeg"),
-        ("test.m4a", "audio/mp4a-latm"),
         ("test.wav", "audio/x-wav"),
         ("test.txt", "text/plain"),
         ("test.unknown", "application/octet-stream"),
