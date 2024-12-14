@@ -35,6 +35,8 @@ rust-just = "^1.36.0"
 responses = "^0.25.3"
 ruff = "^0.8.2"
 pyright = "^1.1.390"
+pytest-asyncio = "^0.25.0"
+pre-commit = "^4.0.1"
 
 [project.classifiers]
 license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"
