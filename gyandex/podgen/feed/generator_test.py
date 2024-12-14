@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 import pytest
 
 from .generator import PodcastFeedGenerator
-from ..feed.models_test import test_db, sample_feed_data, sample_episode_data
+
 
 def test_generate_feed_xml(test_db, sample_feed_data, sample_episode_data):
     """

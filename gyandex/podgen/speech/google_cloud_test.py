@@ -2,24 +2,16 @@ from unittest.mock import Mock, patch
 
 from google.cloud import texttospeech
 
-from ..config.schema import Participant, Gender
+from ..config.schema import Gender, Participant
 from ..speech.google_cloud import GoogleTTSEngine
-from ..workflows.types import DialogueLine, ScriptSegment
+from ..workflows.types import DialogueLine
 
 dummy_participants = [
-    Participant(
-        name="HOST1",
-        language_code="en-US",
-        voice="en-US-Neural2-F",
-        gender=Gender.FEMALE
-    ),
-    Participant(
-        name="HOST2",
-        language_code="en-US",
-        voice="en-US-Neural2-F",
-        gender=Gender.FEMALE
-    )
+    Participant(name="HOST1", language_code="en-US", voice="en-US-Neural2-F", gender=Gender.FEMALE),
+    Participant(name="HOST2", language_code="en-US", voice="en-US-Neural2-F", gender=Gender.FEMALE),
 ]
+
+
 def test_tts_engine_initialization():
     """Tests that TTSEngine initializes with correct voice configurations"""
     # Given/When

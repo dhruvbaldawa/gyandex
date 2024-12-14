@@ -4,7 +4,7 @@ import pytest
 
 from ..storage.s3 import S3CompatibleStorage
 from .publisher import PodcastMetadata, PodcastPublisher
-from ..feed.models_test import test_db
+
 
 @pytest.fixture
 def mock_storage():

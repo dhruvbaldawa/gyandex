@@ -95,7 +95,8 @@ def test_load_config_parses_yaml_with_env_vars(tmp_path):
         - name: Mike
           personality: |
             A practical industry expert with hands-on experience.
-            Style: Down-to-earth, provides real-world examples, occasionally humorous, and good at breaking down complex topics.
+            Style: Down-to-earth, provides real-world examples, occasionally humorous, 
+            and good at breaking down complex topics.
           voice: en-US-Journey-D
           language_code: en-US
           gender: male
