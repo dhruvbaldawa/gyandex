@@ -27,12 +27,6 @@ poetry install
 - Add `GOOGLE_API_KEY` in `.env` by generating the [API key from Google AI Studio](https://aistudio.google.com/app/apikey)
 - Login to Google Cloud using [the following instructions](https://cloud.google.com/text-to-speech/docs/create-audio-text-client-libraries)
 
-## Running the Application
-```shell
-jupyter notebook
-```
-Run the `main.ipynb` notebook
-
 ## License
 
 This project is licensed under the **AGPL v3** for open-source use. For those wishing to use the software in proprietary applications without disclosing source code, a **commercial license** is available.
