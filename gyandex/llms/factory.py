@@ -1,18 +1,20 @@
 import logging
+import os
 from datetime import datetime
 from typing import Union
 
+from langchain_openai import ChatOpenAI
 from langchain_core.callbacks import BaseCallbackHandler
-from langchain_google_genai import GoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-from ..podgen.config.schema import GoogleGenerativeAILLMConfig  # @TODO: Pull this out of podgen
+from ..podgen.config.schema import LLMConfig  # @TODO: Pull this out of podgen
 
 
 class LLMLoggingCallback(BaseCallbackHandler):
     def __init__(self, log_dir="assets"):
         logger = logging.getLogger("llm_logger")
         logger.setLevel(logging.INFO)
-
+        os.makedirs(log_dir, exist_ok=True)
         # Create file handler with timestamp in filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         fh = logging.FileHandler(f"{log_dir}/llm_logs_{timestamp}.log")
@@ -40,13 +42,21 @@ class LLMLoggingCallback(BaseCallbackHandler):
 
 
 # @TODO: Centralize this argument type in a single place
-def get_model(config: Union[GoogleGenerativeAILLMConfig], log_dir="assets"):  # pyright: ignore [reportInvalidTypeArguments]
+def get_model(config: LLMConfig, log_dir="assets"):
     if config.provider == "google-generative-ai":
-        return GoogleGenerativeAI(
+        return ChatGoogleGenerativeAI(
             model=config.model,
             temperature=config.temperature,
-            google_api_key=config.google_api_key,  # pyright: ignore [reportCallIssue]
+            google_api_key=config.api_key,  # pyright: ignore [reportCallIssue]
             max_output_tokens=8192,  # @TODO: Move this to config params  # pyright: ignore [reportCallIssue]
+            callbacks=[LLMLoggingCallback(log_dir)],
+        )
+    elif config.provider == "openai":
+        return ChatOpenAI(
+            model=config.model,  # pyright: ignore [reportCallIssue]
+            temperature=config.temperature,
+            openai_api_key=config.api_key,
+            base_url=config.base_url,  # pyright: ignore [reportCallIssue]
             callbacks=[LLMLoggingCallback(log_dir)],
         )
     else:

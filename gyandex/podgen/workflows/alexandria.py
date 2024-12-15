@@ -1,5 +1,6 @@
 import asyncio
-from typing import List, Union
+from textwrap import dedent
+from typing import List
 
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
@@ -7,12 +8,12 @@ from rich import print as rprint
 
 from ...llms.factory import get_model
 from ...loaders.factory import Document
-from ..config.schema import GoogleGenerativeAILLMConfig, Participant, PodcastConfig
+from ..config.schema import Participant, PodcastConfig, LLMConfig
 from .types import OutlineSegment, PodcastEpisode, PodcastOutline, ScriptSegment
 
 
 class OutlineGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig]):  # pyright: ignore [reportInvalidTypeArguments]
+    def __init__(self, config: LLMConfig):
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=PodcastOutline)
@@ -51,7 +52,7 @@ class OutlineGenerator:
 
 
 class ScriptGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig], participants: List[Participant]):  # pyright: ignore [reportInvalidTypeArguments]
+    def __init__(self, config: LLMConfig, participants: List[Participant]):
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=ScriptSegment)
