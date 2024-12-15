@@ -10,7 +10,7 @@ readme = "README.md"
 podgen = "gyandex.cli.genpod:main"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11,<3.14"
 pandas = "^2.2.3"
 notebook = "^7.2.2"
 torch = "^2.5.0"
@@ -26,6 +26,7 @@ mutagen = "^1.47.0"
 rich = {extras = ["jupyter"], version = "^13.9.3"}
 python-slugify = "^8.0.4"
 langchain-openai = "^0.2.12"
+yt-dlp = "^2024.12.13"
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"

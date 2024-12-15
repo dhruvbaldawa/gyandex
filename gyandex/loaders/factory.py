@@ -1,22 +1,16 @@
-from typing import Any, Dict, Optional
-
 import requests
-from pydantic import BaseModel
 
 from ..podgen.config.schema import ContentConfig, ContentFormat  # @TODO: Pull this out of podgen
-
-
-# @TODO: pull this out of this file
-class Document(BaseModel):
-    title: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
-    content: str
+from .types import Document
+from .youtube import fetch_youtube
 
 
 def load_content(content_config: ContentConfig) -> Document:
-    if content_config.format != ContentFormat.HTML:
-        raise NotImplementedError(f"Unsupported content format: {content_config.format}")
-    return fetch_url(content_config.source)
+    if content_config.format == ContentFormat.HTML:
+        return fetch_url(content_config.source)
+    elif content_config.format == ContentFormat.YOUTUBE:
+        return fetch_youtube(content_config.source)
+    raise NotImplementedError(f"Unsupported content format: {content_config.format}")
 
 
 def fetch_url(url) -> Document:

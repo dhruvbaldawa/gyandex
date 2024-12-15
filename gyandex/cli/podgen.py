@@ -79,7 +79,7 @@ def main():
             audio_file_path=podcast_path,
             metadata=PodcastMetadata(
                 title=script.title,
-                description=script.description,
+                description=script.description + f"\n\nSource: {config.content.source}",
             ),
         )
     console.print(f"Feed published at {urls['feed_url']}")

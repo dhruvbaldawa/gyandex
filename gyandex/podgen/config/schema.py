@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, HttpUrl
 # @TODO: Redo this, the content format can be better structured
 class ContentFormat(Enum):
     HTML = "html"
-    MARKDOWN = "markdown"
+    YOUTUBE = "youtube"
     PDF = "pdf"
     TEXT = "text"
 

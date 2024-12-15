@@ -1,13 +1,15 @@
 import asyncio
+from json import JSONDecodeError
 from textwrap import dedent
 from typing import List
 
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
+from langchain_core.exceptions import OutputParserException
 from rich import print as rprint
 
 from ...llms.factory import get_model
-from ...loaders.factory import Document
+from ...loaders.types import Document
 from ..config.schema import LLMConfig, Participant, PodcastConfig
 from .types import OutlineSegment, PodcastEpisode, PodcastOutline, ScriptSegment
 
@@ -47,7 +49,14 @@ class OutlineGenerator:
 
     def generate_outline(self, document: Document) -> PodcastOutline:
         """Generate structured podcast outline from content summary"""
-        chain = self.outline_prompt | self.model | self.parser
+        chain = (
+            self.outline_prompt
+            | self.model
+            | self.parser.with_retry(
+                stop_after_attempt=2,
+                retry_if_exception_type=(JSONDecodeError, OutputParserException),
+            )
+        )
         response = chain.invoke({"content": document.content, "title": document.title})
         return response
 
@@ -112,7 +121,14 @@ class ScriptGenerator:
             """),
         )
 
-        self.chain = self.segment_prompt | self.model | self.parser
+        self.chain = (
+            self.segment_prompt
+            | self.model
+            | self.parser.with_retry(
+                stop_after_attempt=2,
+                retry_if_exception_type=(JSONDecodeError, OutputParserException),
+            )
+        )
 
     def create_host_profile(self, participant: Participant):
         return f"HOST ({participant.name})[{participant.gender}]: {participant.personality}"
