@@ -1,5 +1,6 @@
 import asyncio
-from typing import List, Union
+from textwrap import dedent
+from typing import List
 
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
@@ -7,18 +8,18 @@ from rich import print as rprint
 
 from ...llms.factory import get_model
 from ...loaders.factory import Document
-from ..config.schema import GoogleGenerativeAILLMConfig, Participant, PodcastConfig
+from ..config.schema import LLMConfig, Participant, PodcastConfig
 from .types import OutlineSegment, PodcastEpisode, PodcastOutline, ScriptSegment
 
 
 class OutlineGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig]):  # pyright: ignore [reportInvalidTypeArguments]
+    def __init__(self, config: LLMConfig):
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=PodcastOutline)
 
         self.outline_prompt = PromptTemplate(
-            template="""
+            template=dedent("""
             Create a focused podcast outline based on the content
 
             Rules:
@@ -30,6 +31,7 @@ class OutlineGenerator:
             5. Talking points should be mutually exclusive across segments
             6. Maintain natural conversation flow between segments
             7. Explore different perspectives, so that important topics are covered holistically
+            
             <title>{title}</title>
             <content>
             {content}
@@ -38,7 +40,7 @@ class OutlineGenerator:
             {format_instructions} 
             
             Make sure each segment has a clear transition to the next topic.
-            """,
+            """),
             input_variables=["content"],
             partial_variables={"format_instructions": self.parser.get_format_instructions()},
         )
@@ -51,7 +53,7 @@ class OutlineGenerator:
 
 
 class ScriptGenerator:
-    def __init__(self, config: Union[GoogleGenerativeAILLMConfig], participants: List[Participant]):  # pyright: ignore [reportInvalidTypeArguments]
+    def __init__(self, config: LLMConfig, participants: List[Participant]):
         self.model = get_model(config)
 
         self.parser = PydanticOutputParser(pydantic_object=ScriptSegment)
@@ -62,9 +64,9 @@ class ScriptGenerator:
                 "format_instructions": self.parser.get_format_instructions(),
                 "host_profiles": "\n".join([self.create_host_profile(participant) for participant in participants]),
             },
-            template="""
+            template=dedent("""
             You are the a world-class podcast writer, you have worked as a ghost writer for Joe Rogan, 
-            Lex Fridman, Ben Shapiro, Tim Ferris. 
+            Lex Fridman, Ben Shapiro, Tim Ferris.
             We are in an alternate universe where actually you have been writing every line they say and 
             they just stream it into their brains.
             You have won multiple podcast awards for your writing.
@@ -91,14 +93,13 @@ class ScriptGenerator:
             3. If this is middle segment: let the conversation flow naturally into the next topic without 
                announcing transitions or welcoming statements
             4. End segment dialogues by building on the current point and naturally introducing elements of the 
-               next topic, except if it is the closing segment
+               next topic
+            5. If this is the closing segment, end the segment with a natural conclusion
 
             REQUIREMENTS:
-            1. WELCOME/INTRO PHRASES ONLY IN THE OPENING SEGMENT.
-            2. NO CLOSING/GOODBYE PHRASES UNLESS THIS IS THE CLOSING SEGMENT.
-            3. ONLY transition to the next segment at the end of the opening and middle segments
-            4. Generate text without special formatting, so that a TTS can vocalize it. 
+            1. Generate text without special formatting, so that a TTS can vocalize it. 
                That means no asterisks or hyphens.
+            2. Rewrite acronyms and abbreviations as full words, so that they are easier to pronounce.
 
             TRANSITION STYLE GUIDE:
             - Avoid phrases like "segues into" or "next topic"
@@ -108,7 +109,7 @@ class ScriptGenerator:
             - Let one host's insight naturally lead to the next area of discussion
 
             {format_instructions}
-            """,
+            """),
         )
 
         self.chain = self.segment_prompt | self.model | self.parser

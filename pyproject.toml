@@ -25,6 +25,7 @@ feedgen = "^1.0.0"
 mutagen = "^1.47.0"
 rich = {extras = ["jupyter"], version = "^13.9.3"}
 python-slugify = "^8.0.4"
+langchain-openai = "^0.2.12"
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"

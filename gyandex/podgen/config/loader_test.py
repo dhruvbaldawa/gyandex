@@ -76,12 +76,12 @@ def test_load_config_parses_yaml_with_env_vars(tmp_path):
         provider: "google-generative-ai"
         model: "gemini-1.5-pro"
         temperature: 0.4
-        google_api_key: "xxx"
+        api_key: "xxx"
       script:
         provider: "google-generative-ai"
         model: "gemini-1.5-flash"
         temperature: 0.8
-        google_api_key: "xxx"
+        api_key: "xxx"
     tts:
       provider: "google-cloud"
       participants:

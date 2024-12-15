@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, TypeAlias, Union
 
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -20,19 +20,31 @@ class ContentConfig(BaseModel):
 
 class LLMProviders(Enum):
     GOOGLE_GENERATIVE_AI = "google-generative-ai"
+    OPENAI = "openai"
 
 
 class GoogleGenerativeAILLMConfig(BaseModel):
     provider: Literal["google-generative-ai"]
     model: str
-    temperature: Optional[float] = 1.0
-    google_api_key: str
+    temperature: Optional[float] = 0.7
+    api_key: str
+
+
+class OpenAILLMConfig(BaseModel):
+    provider: Literal["openai"]
+    model: str
+    temperature: Optional[float] = 0.7
+    api_key: str
+    base_url: Optional[str] = None
+
+
+LLMConfig: TypeAlias = Union[GoogleGenerativeAILLMConfig, OpenAILLMConfig]
 
 
 class AlexandriaWorkflowConfig(BaseModel):
     name: Literal["alexandria"]
-    outline: Union[GoogleGenerativeAILLMConfig]  # pyright: ignore [reportInvalidTypeArguments]
-    script: Union[GoogleGenerativeAILLMConfig]  # pyright: ignore [reportInvalidTypeArguments]
+    outline: LLMConfig = Field(discriminator="provider")
+    script: LLMConfig = Field(discriminator="provider")
     verbose: Optional[bool] = False
 
 
