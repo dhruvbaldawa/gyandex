@@ -1,11 +1,10 @@
 import logging
 import os
 from datetime import datetime
-from typing import Union
 
-from langchain_openai import ChatOpenAI
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 
 from ..podgen.config.schema import LLMConfig  # @TODO: Pull this out of podgen
 
@@ -55,7 +54,7 @@ def get_model(config: LLMConfig, log_dir="assets"):
         return ChatOpenAI(
             model=config.model,  # pyright: ignore [reportCallIssue]
             temperature=config.temperature,
-            openai_api_key=config.api_key,
+            openai_api_key=config.api_key,  # pyright: ignore [reportCallIssue]
             base_url=config.base_url,  # pyright: ignore [reportCallIssue]
             callbacks=[LLMLoggingCallback(log_dir)],
         )

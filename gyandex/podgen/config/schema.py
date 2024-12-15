@@ -22,7 +22,10 @@ class LLMProviders(Enum):
     GOOGLE_GENERATIVE_AI = "google-generative-ai"
     OPENAI = "openai"
 
+
 type LLMConfig = Union[GoogleGenerativeAILLMConfig, OpenAILLMConfig]
+
+
 class GoogleGenerativeAILLMConfig(BaseModel):
     provider: Literal["google-generative-ai"]
     model: str
