@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, TypeAlias, Union
 
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -23,9 +23,6 @@ class LLMProviders(Enum):
     OPENAI = "openai"
 
 
-type LLMConfig = Union[GoogleGenerativeAILLMConfig, OpenAILLMConfig]
-
-
 class GoogleGenerativeAILLMConfig(BaseModel):
     provider: Literal["google-generative-ai"]
     model: str
@@ -39,6 +36,9 @@ class OpenAILLMConfig(BaseModel):
     temperature: Optional[float] = 0.7
     api_key: str
     base_url: Optional[str] = None
+
+
+LLMConfig: TypeAlias = Union[GoogleGenerativeAILLMConfig, OpenAILLMConfig]
 
 
 class AlexandriaWorkflowConfig(BaseModel):
