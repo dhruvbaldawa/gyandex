@@ -1,17 +1,24 @@
 [project]
 name = "gyandex"
-dynamic = [ "version" ]
+dynamic = [ "version", "dependencies" ]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"
+]
+description = "organizes vast information into a structured, accessible format to simplify knowledge acquisition"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+authors = [
+    { name = "Dhruv Baldawa <dhruvbaldawa@gmail.com>", email = "dhruvbaldawa@users.noreply.github.com" }
+]
+requires-python = ">=3.11"
 
 [tool.poetry]
-name = "gyandex"
 version = "0.1.0"
-description = "organizes vast information into a structured, accessible format to simplify knowledge acquisition"
-authors = ["Dhruv Baldawa <dhruvbaldawa@gmail.com>"]
-license = "AGPL-3.0-or-later"
-readme = "README.md"
 package-mode = true
 
-[tool.poetry.scripts]
+[project.scripts]
 podgen = "gyandex.cli.genpod:main"
 
 [tool.poetry.dependencies]
@@ -44,9 +51,6 @@ ruff = "^0.8.2"
 pyright = "^1.1.390"
 pytest-asyncio = "^0.25.0"
 pre-commit = "^4.0.1"
-
-[project.classifiers]
-license = "OSI Approved :: GNU Affero General Public License v3 (AGPLv3)"
 
 [build-system]
 requires = ["poetry-core"]
