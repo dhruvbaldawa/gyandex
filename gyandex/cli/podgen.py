@@ -40,19 +40,40 @@ def main():
         script = asyncio.run(workflow.generate_script(document))
     console.log(f'Script completed for "{script.title}". Script contains {len(script.dialogues)} segments...')
 
+    # Create output directory
+    output_dir = f"generated_podcasts/{config.feed.slug}"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the transcript
+    transcript_path = f"{output_dir}/transcript_{hashlib.md5(config.content.source.encode()).hexdigest()}.txt"
+    with open(transcript_path, "w", encoding="utf-8") as f:
+        f.write(f"Title: {script.title}\n")
+        f.write(f"Description: {script.description}\n\n")
+        f.write("Transcript:\n")
+        for dialogue in script.dialogues:
+            f.write(f"{dialogue.speaker}: {dialogue.text}\n")
+    console.log(f"Transcript saved to {transcript_path}...")
+
+    # Check if TTS is enabled
+    if not config.tts.enabled:
+        console.log("[yellow]TTS is disabled, skipping audio generation and publishing...[/yellow]")
+        return
+
     # Generate the podcast audio
     with console.status("[bold green] Generating audio...[/bold green]"):
         tts_engine = get_text_to_speech_engine(config.tts)
         audio_segments = [tts_engine.process_segment(dialogue) for dialogue in script.dialogues]
 
-        # Create output directory
-        output_dir = f"generated_podcasts/{config.feed.slug}"
-        os.makedirs(output_dir, exist_ok=True)
-
         podcast_path = f"{output_dir}/podcast_{hashlib.md5(config.content.source.encode()).hexdigest()}.mp3"
         tts_engine.generate_audio_file(audio_segments, podcast_path)
     console.log(f"Podcast file {podcast_path} generated...")
 
+    # Check if storage is enabled
+    if not config.storage.enabled:
+        console.log("[yellow]Storage is disabled, skipping podcast publishing...[/yellow]")
+        return
+
+    # Publish the podcast
     with console.status("[bold green] Publishing podcast...[/bold green]"):
         storage = get_storage(config.storage)
         db = PodcastDB(db_path="assets/podcasts.db")

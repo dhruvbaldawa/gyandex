@@ -64,11 +64,13 @@ class Participant(BaseModel):
 
 class GoogleCloudTTSConfig(BaseModel):
     provider: Literal["google-cloud"]
+    enabled: bool = True
     participants: List[Participant]
 
 
 class S3StorageConfig(BaseModel):
     provider: Literal["s3"]
+    enabled: bool = True
     bucket: str
     access_key: str
     secret_key: str
