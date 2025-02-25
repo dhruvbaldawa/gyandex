@@ -1,0 +1,57 @@
+version: "1.0"
+content:
+  # Example YouTube video URL
+  source: https://www.youtube.com/watch?v=example
+  format: youtube
+
+workflow:
+  name: alexandria
+  verbose: true
+  # AI configuration for content processing
+  outline:
+    provider: "google-generative-ai"
+    model: "gemini-2.0-flash-thinking-exp-01-21"
+    temperature: 0.4
+    api_key: "${GOOGLE_API_KEY}"
+  script:
+    provider: "google-generative-ai"
+    model: "gemini-2.0-flash"
+    temperature: 0.8
+    api_key: "${GOOGLE_API_KEY}"
+
+tts:
+  provider: "google-cloud"
+  participants:
+    - name: Host
+      personality: |
+        A friendly and knowledgeable podcast host who explains topics clearly.
+        Style: Engaging, conversational, and good at breaking down complex concepts.
+      voice: en-US-Chirp-HD-O
+      language_code: en-US
+      gender: female
+    - name: Expert
+      personality: |
+        A subject matter expert who provides detailed insights.
+        Style: Professional, articulate, and uses practical examples.
+      voice: en-US-Chirp-HD-D
+      language_code: en-US
+      gender: male
+
+storage:
+  provider: "s3"
+  access_key: "${ACCESS_KEY_ID}"
+  secret_key: "${SECRET_ACCESS_KEY}"
+  bucket: "your-bucket-name"
+  region: "your-region"
+  endpoint: "your-s3-endpoint"  # Optional, for S3-compatible storage like R2
+
+feed:
+  title: "My Tech Podcast"
+  slug: "tech-podcast"
+  description: "A podcast about technology and innovation"
+  author: "Your Name"
+  email: "your.email@example.com"
+  language: "en"
+  categories: ["Technology", "Education"]
+  image: "https://example.com/podcast-cover.jpg"
+  website: "https://example.com/podcast"
