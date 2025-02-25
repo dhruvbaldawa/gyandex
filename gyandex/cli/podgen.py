@@ -68,6 +68,11 @@ def main():
         tts_engine.generate_audio_file(audio_segments, podcast_path)
     console.log(f"Podcast file {podcast_path} generated...")
 
+    # Check if storage is enabled
+    if not config.storage.enabled:
+        console.log("[yellow]Storage is disabled, skipping podcast publishing...[/yellow]")
+        return
+
     # Publish the podcast
     with console.status("[bold green] Publishing podcast...[/bold green]"):
         storage = get_storage(config.storage)

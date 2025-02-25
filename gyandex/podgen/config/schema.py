@@ -70,6 +70,7 @@ class GoogleCloudTTSConfig(BaseModel):
 
 class S3StorageConfig(BaseModel):
     provider: Literal["s3"]
+    enabled: bool = True
     bucket: str
     access_key: str
     secret_key: str
