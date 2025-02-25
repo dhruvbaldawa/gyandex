@@ -1,0 +1,57 @@
+version: "1.0"
+content:
+  # Example web article URL
+  source: https://example.com/article
+  format: html
+
+workflow:
+  name: alexandria
+  verbose: true
+  # AI configuration for content processing
+  outline:
+    provider: "google-generative-ai"
+    model: "gemini-2.0-flash-thinking-exp-01-21"
+    temperature: 0.4
+    api_key: "${GOOGLE_API_KEY}"
+  script:
+    provider: "google-generative-ai"
+    model: "gemini-2.0-flash"
+    temperature: 0.8
+    api_key: "${GOOGLE_API_KEY}"
+
+tts:
+  provider: "google-cloud"
+  participants:
+    - name: Narrator
+      personality: |
+        A professional narrator with a clear and engaging voice.
+        Style: Authoritative yet approachable, maintains listener interest with good pacing and emphasis.
+      voice: en-US-Chirp-HD-O
+      language_code: en-US
+      gender: female
+    - name: Analyst
+      personality: |
+        An industry expert who provides analysis and context.
+        Style: Thoughtful, analytical, and good at explaining complex topics.
+      voice: en-US-Chirp-HD-D
+      language_code: en-US
+      gender: male
+
+storage:
+  provider: "s3"
+  access_key: "${ACCESS_KEY_ID}"
+  secret_key: "${SECRET_ACCESS_KEY}"
+  bucket: "your-bucket-name"
+  region: "your-region"
+  endpoint: "your-s3-endpoint"  # Optional, for S3-compatible storage like R2
+
+feed:
+  title: "Web Articles Podcast"
+  slug: "web-articles"
+  description: "Converting insightful web articles into engaging audio content"
+  author: "Your Name"
+  email: "your.email@example.com"
+  language: "en"
+  categories: ["Technology", "News", "Education"]
+  image: "https://example.com/podcast-cover.jpg"
+  website: "https://example.com/podcast"
