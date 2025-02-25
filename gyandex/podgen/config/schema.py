@@ -64,6 +64,7 @@ class Participant(BaseModel):
 
 class GoogleCloudTTSConfig(BaseModel):
     provider: Literal["google-cloud"]
+    enabled: bool = True
     participants: List[Participant]
 
 
