@@ -1,3 +1,7 @@
+[project]
+name = "gyandex"
+dynamic = [ "version" ]
+
 [tool.poetry]
 name = "gyandex"
 version = "0.1.0"
@@ -5,6 +9,7 @@ description = "organizes vast information into a structured, accessible format t
 authors = ["Dhruv Baldawa <dhruvbaldawa@gmail.com>"]
 license = "AGPL-3.0-or-later"
 readme = "README.md"
+package-mode = true
 
 [tool.poetry.scripts]
 podgen = "gyandex.cli.genpod:main"
