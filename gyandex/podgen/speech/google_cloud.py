@@ -1,8 +1,10 @@
 from io import BytesIO
 from typing import Any, Dict, List, Optional
 
+from google.api_core.exceptions import ResourceExhausted
 from google.cloud import texttospeech
 from pydub import AudioSegment
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from ..config.schema import Gender, Participant
 from ..workflows.types import DialogueLine  # @TODO: Pull this out of workflows
@@ -36,6 +38,12 @@ class GoogleTTSEngine:
     def process_segment(self, segment: DialogueLine) -> bytes:
         return self.synthesize_speech(segment.text, segment.speaker)
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_fixed(30),
+        retry=retry_if_exception_type(ResourceExhausted),
+        reraise=True,
+    )
     def synthesize_speech(self, text: str, speaker: str) -> bytes:
         synthesis_input = texttospeech.SynthesisInput(text=text)
         response = self.client.synthesize_speech(

@@ -106,7 +106,7 @@ class OutlineGenerator:
             self.content_analysis_prompt
             | self.model
             | self.analysis_parser.with_retry(
-                stop_after_attempt=2,
+                stop_after_attempt=3,
                 retry_if_exception_type=(JSONDecodeError, OutputParserException),
             )
         )
@@ -127,7 +127,7 @@ class OutlineGenerator:
             self.outline_prompt
             | self.model
             | self.parser.with_retry(
-                stop_after_attempt=2,
+                stop_after_attempt=3,
                 retry_if_exception_type=(JSONDecodeError, OutputParserException),
             )
         )
@@ -290,12 +290,49 @@ class ScriptGenerator:
                 - "You're ri— wait, let me think about that more"
                 - "Absol— hmm, I'm not sure I'd go that far"
 
-            FORCED PATTERN BREAKING:
-              - After completing the dialogue, DELIBERATELY insert at least:
-                * 3 instances where a host starts to say something and changes direction mid-sentence
-                * 2 instances where a host contradicts themselves slightly
-                * 4 instances of speech disfluencies (um, uh, like, you know)
-                * 2 instances where a host misremembers or misquotes something
+            LANGUAGE PATTERN VARIETY (AVOID REPETITION):
+            - NEVER use the exact same reaction or transition phrase more than once in a segment
+            - REPHRASE suggested patterns in your own words - don't copy them verbatim
+            - VARY emotional tone in responses (curious, skeptical, surprised, thoughtful)
+            - CREATE unique variations for each instance of disagreement or reaction
+            - Examples of pattern variations (USE AS INSPIRATION, NOT EXACT PHRASES):
+              * Disagreement variations:
+                "I hear what you're saying, but I'm struggling with..."
+                "That perspective overlooks the fact that..."
+                "I've been thinking about it differently..."
+                "The challenge I see with that approach is..."
+                "I'm wrestling with that idea because..."
+                "That's not how I see it..."
+                "I'd push back on that point..."
+                "I'm not fully sold on that explanation..."
+                "There's another way to look at this..."
+                "What about cases where that doesn't apply?"
+
+              * Reaction variations:
+                "That's a thought-provoking take..."
+                "I hadn't considered it from that angle..."
+                "That connection is fascinating..."
+                "I'm still processing that idea..."
+                "That's got me thinking about..."
+                "Something feels off about that explanation..."
+                "I'm intrigued by your approach to this..."
+                "That's a nuanced way of looking at it..."
+                "I'm trying to reconcile that with..."
+                "That raises an important question about..."
+
+            SPEECH DIVERSITY GUIDELINES:
+              - DELIBERATELY VARY sentence structure, length, and complexity
+              - USE a mix of questions, statements, and incomplete thoughts
+              - INCLUDE occasional verbal quirks unique to each host
+              - CREATE moments where hosts struggle to articulate complex ideas
+              - EMPLOY different linguistic registers (casual, technical, philosophical)
+              - DEVELOP unique transitional phrases for each topic shift
+
+            FORCED PATTERN BREAKING: After completing the dialogue, DELIBERATELY insert at least:
+              * 3 instances where a host starts to say something and changes direction mid-sentence
+              * 2 instances where a host contradicts themselves slightly
+              * 4 instances of speech disfluencies (um, uh, like, you know)
+              * 2 instances where a host misremembers or misquotes something
 
             CONTINUOUS CONVERSATION REQUIREMENTS:
               - This is ONE CONTINUOUS EPISODE with NO AD BREAKS
@@ -303,6 +340,45 @@ class ScriptGenerator:
               - NEVER start a segment with phrases indicating a return (e.g., "welcome back", "as we discussed earlier")
               - Transition between segments should feel like natural topic shifts in a single ongoing conversation
               - Maintain consistent energy levels across segment boundaries
+
+            VARIED RESOLUTIONS - AVOID BALANCE AS DEFAULT:
+            - NEVER end more than one segment with "balance is key" or similar conclusions
+            - Use these diverse ending types (one per segment):
+                * Clear winner: One host convinces the other or has a stronger position
+                * Productive tension: Hosts maintain respectful disagreement without resolution
+                * New question: Discussion raises a deeper question that remains unexplored
+                * Surprising connection: Hosts find unexpected common ground on a tangential point
+                * Personal reflection: One host relates concept to personal experience without resolution
+                * Philosophical pivot: Discussion moves to broader implications without settling original point
+            - EXPLICITLY AVOID phrases like "I think we're both agreeing" as default resolution
+            - CRITICAL: Each segment MUST have a COMPLETELY DIFFERENT ending
+            - NEVER end more than one segment with the same host making similar closing remarks
+            - NEVER use the phrase like "next time we'll dive deeper into..." more than once
+            - TRACK previous segment endings to ensure variety
+
+            NATURAL SEGMENT TRANSITIONS:
+            - NEVER end a segment with obvious wrap-up phrases like "Well, that's a wrap" or "Let's move on"
+            - NEVER start a segment with obvious transition markers like "Alright, let's talk about..."
+            - Instead, create organic topic shifts that feel like natural conversation:
+                * Use curiosity: "I've been wondering about something else Bacon mentioned..."
+                * Use association: "That reminds me of another aspect of this topic..."
+                * Use contrast: "What's interesting is how Bacon takes a different approach when discussing..."
+                * Use questioning: "Do you think Bacon's view on reading applies to other forms of learning?"
+            - Make transitions feel spontaneous rather than scripted or planned
+            - Avoid clearly demarcated endings and beginnings between segments
+
+            GENERATION APPROACH:
+            1. FIRST, review the following carefully:
+            - Previous segment
+            - Source material
+            - Talking points
+
+            2. PLAN your segment to ensure NO REPETITION:
+            - Write down concepts you WON'T repeat
+            - Plan unique angles for any related concepts
+            - Design your segment structure to be distinct from previous ones
+
+            3. ONLY THEN generate the actual dialogue following all guidelines above
 
             ---
 
@@ -355,7 +431,7 @@ class ScriptGenerator:
             self.segment_prompt
             | self.model
             | self.parser.with_retry(
-                stop_after_attempt=2,
+                stop_after_attempt=3,
                 retry_if_exception_type=(JSONDecodeError, OutputParserException),
             )
         )
