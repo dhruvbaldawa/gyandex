@@ -3,6 +3,15 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
+class ContentAnalysis(BaseModel):
+    complexity: int = Field(description="Content complexity on a scale of 1-5 (1=very simple, 5=highly complex)")
+    density: int = Field(description="Information density on a scale of 1-5 (1=sparse, 5=extremely dense)")
+    concept_count: int = Field(description="Estimate of how many distinct key concepts are presented")
+    topic_breadth: int = Field(description="Number of separate topics or themes covered")
+    optimal_segments: int = Field(description="Recommended number of podcast segments (3-8)")
+    explanation: str = Field(description="Brief explanation of the reasoning behind the analysis")
+
+
 class OutlineSegment(BaseModel):
     name: str = Field(description="Name of the podcast segment")
     duration: int = Field(description="Duration of segment in minutes")
@@ -25,7 +34,10 @@ class PodcastOutline(BaseModel):
 
 class DialogueLine(BaseModel):
     speaker: str
-    text: str
+    text: str = Field(
+        description="Dialogue text, ONLY use plain-text without any formatting, use quotes."
+        "DO NOT USE ASTERISKS OR UNDERSCORES FOR EMPHASIS! I REPEAT DO NOT USE THEM!"
+    )
 
 
 class ScriptSegment(BaseModel):
