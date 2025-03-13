@@ -41,6 +41,7 @@ langchain-openai = "^0.2.12"
 yt-dlp = "^2024.12.13"
 tenacity = "^9.0.0"
 pyright = "^1.1.396"
+zyphra = "^0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 nbstripout = "^0.7.1"

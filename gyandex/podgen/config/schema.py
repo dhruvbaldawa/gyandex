@@ -68,6 +68,14 @@ class GoogleCloudTTSConfig(BaseModel):
     participants: List[Participant]
 
 
+class ZyphraTTSConfig(BaseModel):
+    provider: Literal["zyphra"]
+    enabled: bool = True
+    api_key: str
+    participants: List[Participant]
+
+TTSConfig: TypeAlias = Union[GoogleCloudTTSConfig, ZyphraTTSConfig]
+
 class S3StorageConfig(BaseModel):
     provider: Literal["s3"]
     enabled: bool = True
@@ -105,6 +113,6 @@ class PodcastConfig(BaseModel):
     version: str
     content: ContentConfig
     workflow: Union[AlexandriaWorkflowConfig] = Field(discriminator="name")  # pyright: ignore [reportInvalidTypeArguments]
-    tts: Union[GoogleCloudTTSConfig] = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
+    tts: TTSConfig = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
     storage: Union[S3StorageConfig] = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
     feed: FeedConfig

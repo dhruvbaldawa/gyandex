@@ -9,10 +9,21 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fi
 
 from ..config.schema import Gender, Participant
 from ..workflows.types import DialogueLine  # @TODO: Pull this out of workflows
+from .base import BaseTTSProvider
 
 
-class GoogleTTSEngine:
+class GoogleTTSEngine(BaseTTSProvider):
+    """
+    Google Cloud Text-to-Speech implementation.
+    """
+
     def __init__(self, participants: List[Participant]):
+        """
+        Initialize the Google Cloud TTS engine.
+
+        Args:
+            participants: List of participants with their voice configurations
+        """
         self.client = texttospeech.TextToSpeechClient()
         self.voices = self.generate_voice_profile(participants)
         self.audio_config = texttospeech.AudioConfig(
@@ -20,6 +31,15 @@ class GoogleTTSEngine:
         )
 
     def generate_voice_profile(self, participants: List[Participant]) -> Dict[str, Any]:
+        """
+        Generate voice profiles for all participants using Google Cloud TTS.
+
+        Args:
+            participants: List of participants with their voice configurations
+
+        Returns:
+            A dictionary mapping participant names to their Google Cloud voice profiles
+        """
         def resolve_gender(gender: Gender):
             if gender == Gender.FEMALE:
                 return texttospeech.SsmlVoiceGender.FEMALE
@@ -115,6 +135,16 @@ class GoogleTTSEngine:
         reraise=True,
     )
     def synthesize_speech(self, text: str, speaker: str) -> bytes:
+        """
+        Synthesize speech for a given text and speaker using Google Cloud TTS.
+
+        Args:
+            text: The text to convert to speech
+            speaker: The name of the speaker
+
+        Returns:
+            Audio data as bytes
+        """
         synthesis_input = texttospeech.SynthesisInput(text=text)
         response = self.client.synthesize_speech(
             input=synthesis_input, voice=self.voices[speaker], audio_config=self.audio_config
@@ -124,6 +154,14 @@ class GoogleTTSEngine:
     def generate_audio_file(
         self, audio_segments: List[bytes], podcast_path: str, options: Optional[Dict[str, Any]] = None
     ):
+        """
+        Generate an audio file from a list of audio segments.
+
+        Args:
+            audio_segments: List of audio data as bytes
+            podcast_path: Path where the audio file will be saved
+            options: Optional configuration for audio generation
+        """
         if options is None:
             # @TODO: Fix this code-smell
             options = {

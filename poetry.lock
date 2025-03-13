@@ -5514,7 +5514,27 @@ secretstorage = ["cffi", "secretstorage"]
 static-analysis = ["autopep8 (>=2.0,<3.0)", "ruff (>=0.8.0,<0.9.0)"]
 test = ["pytest (>=8.1,<9.0)", "pytest-rerunfailures (>=14.0,<15.0)"]
 
+[[package]]
+name = "zyphra"
+version = "0.1.4"
+description = "Python client for Zyphra APIs"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "zyphra-0.1.4-py3-none-any.whl", hash = "sha256:5bfd63a1f83bd11f1c8e41f4ac46700c85d7a3b70bfd3b1b84a3d4902c7c7d25"},
+    {file = "zyphra-0.1.4.tar.gz", hash = "sha256:179ffb6084da45ecafe74b71b2621693f9f78d01ed5db9469656d6333987a975"},
+]
+
+[package.dependencies]
+aiohttp = ">=3.8.0"
+pydantic = ">=2.0.0"
+requests = ">=2.25.0"
+
+[package.extras]
+dev = ["aioresponses (>=0.8.0)", "black (>=23.0)", "mypy (>=1.0)", "pytest (>=7.0)", "pytest-asyncio (>=0.21.0)"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11,<3.14"
-content-hash = "e0b3fd70b8d64f9eab3960e58d64d5cd88690c06e88c18b4182f201cbf981f4b"
+content-hash = "e1105769f84a8d1760b56b988c0cde01aa98be8df03b102d1c98cd6c105d0446"
