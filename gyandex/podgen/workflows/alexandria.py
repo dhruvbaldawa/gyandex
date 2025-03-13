@@ -119,7 +119,7 @@ class OutlineGenerator:
             analysis_str = analysis_result.json(indent=2)
         except Exception:
             # Fallback if parsing fails
-            optimal_segments = 5
+            optimal_segments = 7
             analysis_str = "Content analysis unavailable. Using default parameters."
 
         # Stage 2: Generate the outline using the content analysis
