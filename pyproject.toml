@@ -83,3 +83,9 @@ reportMissingTypeStubs = false
 executionEnvironments = [
     { root = "gyandex" }
 ]
+
+[tool.coverage.run]
+omit = [
+    "*_test.py",
+    "test_*.py"
+]
