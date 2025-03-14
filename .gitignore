@@ -165,3 +165,6 @@ generated_podcasts/
 
 assets/
 !assets/.gitkeep
+
+# TTS test output
+tts_test_output/
