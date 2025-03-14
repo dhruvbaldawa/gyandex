@@ -25,24 +25,6 @@ def test_openai_tts_engine_initialization(mock_openai):
 
 
 @patch("openai.OpenAI")
-def test_openai_tts_engine_voice_defaults(mock_openai):
-    """Test that default voices are mapped correctly when custom voices are not specified"""
-    # Given
-    participants = [
-        Participant(name="Host1", gender=Gender.FEMALE, voice=""),
-        Participant(name="Host2", gender=Gender.MALE, voice=""),
-        Participant(name="Host3", gender=Gender.NON_BINARY, voice=""),
-    ]
-    mock_openai.return_value = MagicMock()  # Mock the OpenAI client
-    # When
-    engine = OpenAITTSEngine(participants, api_key="test-key")
-    # Then
-    assert engine.voices["Host1"] == "nova"  # Default female voice
-    assert engine.voices["Host2"] == "onyx"  # Default male voice
-    assert engine.voices["Host3"] == "alloy"  # Default non-binary voice
-
-
-@patch("openai.OpenAI")
 def test_clean_text_for_tts(mock_openai):
     """Test that text cleaning works correctly for TTS preparation"""
     # Given
@@ -109,4 +91,4 @@ def test_synthesize_speech(mock_openai):
 
     # Then
     assert result == b"audio data"
-    mock_client.audio.speech.create.assert_called_once_with(model="tts-1", voice="alloy", input="Test text")
+    mock_client.audio.speech.create.assert_called_once_with(model="tts-1", voice="alloy", input="Test text", speed=1.0)

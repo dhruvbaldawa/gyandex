@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from openai import OpenAI
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
-from ..config.schema import Gender, Participant
+from ..config.schema import Participant
 from .base import BaseTTSEngine
 
 
@@ -25,19 +25,7 @@ class OpenAITTSEngine(BaseTTSEngine):
         Maps each participant to an appropriate OpenAI voice.
         OpenAI offers voices like: alloy, echo, fable, onyx, nova, and shimmer
         """
-        # Define default voice mappings based on gender
-        default_voice_map = {
-            Gender.MALE: "onyx",  # deeper male voice
-            Gender.FEMALE: "nova",  # female voice
-            Gender.NON_BINARY: "alloy",  # neutral voice
-        }
-
-        return {
-            participant.name: participant.voice
-            if participant.voice in ["alloy", "ash", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer"]
-            else default_voice_map.get(participant.gender, "alloy")
-            for participant in participants
-        }
+        return {participant.name: participant.voice for participant in participants}
 
     @retry(
         stop=stop_after_attempt(5),
@@ -51,8 +39,8 @@ class OpenAITTSEngine(BaseTTSEngine):
         Synthesize speech using OpenAI's text-to-speech API.
         """
         voice = self.voices[speaker]
-
-        response = self.client.audio.speech.create(model=self.model, voice=voice, input=text)
+        speed = self.participants[speaker].speed or 1.0
+        response = self.client.audio.speech.create(model=self.model, voice=voice, input=text, speed=speed)
 
         # OpenAI returns a stream of bytes that we can convert to our needed format
         return response.content

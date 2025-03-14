@@ -1,3 +1,4 @@
+import random
 import re
 from abc import ABC, abstractmethod
 from io import BytesIO
@@ -25,6 +26,7 @@ class BaseTTSEngine(ABC):
         Args:
             participants: List of participants with their voice configurations
         """
+        self.participants = {participant.name: participant for participant in participants}
         self.voices = self.generate_voice_profile(participants)
 
     @abstractmethod
@@ -154,7 +156,7 @@ class BaseTTSEngine(ABC):
         """
         if options is None:
             options = {
-                "crossfade": 200,
+                "crossfade": [100, 300],
             }
 
         combined = AudioSegment.empty()
@@ -162,7 +164,8 @@ class BaseTTSEngine(ABC):
         for segment in audio_segments:
             segment_audio = AudioSegment.from_mp3(BytesIO(segment))
             if previous_segment:
-                combined = combined.append(segment_audio, crossfade=options["crossfade"])
+                crossfade = random.randint(options["crossfade"][0], options["crossfade"][1])
+                combined = combined.append(segment_audio, crossfade=crossfade)
             else:
                 combined += segment_audio
             previous_segment = segment

@@ -60,6 +60,7 @@ class Participant(BaseModel):
     gender: Gender
     personality: Optional[str] = ""
     language_code: Optional[str] = "en-US"
+    speed: Optional[float] = 1.0
 
 
 class GoogleCloudTTSConfig(BaseModel):
