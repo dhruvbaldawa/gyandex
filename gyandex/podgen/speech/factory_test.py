@@ -1,8 +1,9 @@
 import pytest
 
-from ..config.schema import Gender, GoogleCloudTTSConfig, Participant
+from ..config.schema import Gender, GoogleCloudTTSConfig, OpenAITTSConfig, Participant
 from .factory import get_text_to_speech_engine
 from .google_cloud import GoogleTTSEngine
+from .openai import OpenAITTSEngine
 
 
 def test_get_text_to_speech_engine_returns_google_cloud():
@@ -17,6 +18,21 @@ def test_get_text_to_speech_engine_returns_google_cloud():
     # Then
     assert isinstance(engine, GoogleTTSEngine)
     assert engine.voices["HOST1"].name == "en-US-Neural2-F"
+
+
+def test_get_text_to_speech_engine_returns_openai():
+    """Tests that get_text_to_speech_engine creates an OpenAITTSEngine instance with correct config"""
+    # Given
+    participants = [Participant(name="HOST1", language_code="en-US", voice="alloy", gender=Gender.FEMALE)]
+    config = OpenAITTSConfig(provider="openai", participants=participants, api_key="test-key")
+
+    # When
+    engine = get_text_to_speech_engine(config)
+
+    # Then
+    assert isinstance(engine, OpenAITTSEngine)
+    assert engine.voices["HOST1"] == "alloy"
+    assert engine.model == "tts-1"
 
 
 def test_get_text_to_speech_engine_raises_for_unsupported_provider():

@@ -68,6 +68,18 @@ class GoogleCloudTTSConfig(BaseModel):
     participants: List[Participant]
 
 
+class OpenAITTSConfig(BaseModel):
+    provider: Literal["openai"]
+    enabled: bool = True
+    participants: List[Participant]
+    model: str = "tts-1"
+    api_key: str
+    base_url: Optional[str] = None
+
+
+TTSConfig: TypeAlias = Union[GoogleCloudTTSConfig, OpenAITTSConfig]
+
+
 class S3StorageConfig(BaseModel):
     provider: Literal["s3"]
     enabled: bool = True
@@ -105,6 +117,6 @@ class PodcastConfig(BaseModel):
     version: str
     content: ContentConfig
     workflow: Union[AlexandriaWorkflowConfig] = Field(discriminator="name")  # pyright: ignore [reportInvalidTypeArguments]
-    tts: Union[GoogleCloudTTSConfig] = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
+    tts: TTSConfig = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
     storage: Union[S3StorageConfig] = Field(discriminator="provider")  # pyright: ignore [reportInvalidTypeArguments]
     feed: FeedConfig

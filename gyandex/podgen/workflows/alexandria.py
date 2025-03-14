@@ -6,6 +6,7 @@ from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
 from langchain_core.exceptions import OutputParserException
 from rich import print as rprint
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from ...llms.factory import get_model
 from ...loaders.types import Document
@@ -447,12 +448,17 @@ class ScriptGenerator:
         context = ""
 
         for i, segment in enumerate(segments):
-            context += f"\n--- SEGMENT {i+1}: {segment.name} ---\n"
+            context += f"\n--- SEGMENT {i + 1}: {segment.name} ---\n"
             for line in segment.dialogue:
                 context += f"{line.speaker}: {line.text}\n"
 
         return context
 
+    @retry(
+        stop=stop_after_attempt(3),
+        retry=retry_if_exception_type((OutputParserException, JSONDecodeError)),
+        reraise=True,
+    )
     async def generate_segment_script(
         self,
         segment: OutlineSegment,
@@ -540,7 +546,7 @@ class AlexandriaWorkflow:
             # Print results in dialogue format
             for i, segment in enumerate(script_segments):
                 rprint(
-                    f"\n[bold magenta]=== Segment {i+1}: {segment.name} ({segment.duration} minutes) ===[/bold magenta]"
+                    f"\n[bold magenta]=== Segment {i + 1}: {segment.name} ({segment.duration} minutes) ===[/bold magenta]"  # noqa: E501
                 )
                 for line in segment.dialogue:
                     rprint(f"[bold]{line.speaker}:[/bold] {line.text}")

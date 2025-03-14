@@ -26,7 +26,7 @@ class OutlineSegment(BaseModel):
 class PodcastOutline(BaseModel):
     title: str = Field(description="Title of the podcast episode")
     description: str = Field(
-        description="A short description of the podcast episode that provides a brief " "overview to the listener."
+        description="A short description of the podcast episode that provides a brief overview to the listener."
     )
     total_duration: int = Field(description="Total podcast duration in minutes")
     segments: List[OutlineSegment] = Field(description="List of podcast segments")
