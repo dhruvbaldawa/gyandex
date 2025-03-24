@@ -27,6 +27,12 @@ class OpenAITTSEngine(BaseTTSEngine):
         """
         return {participant.name: participant.voice for participant in participants}
 
+    def clean_text_for_tts(self, text: str) -> str:
+        """
+        Don't clean the text for TTS for OpenAI
+        """
+        return text
+
     @retry(
         stop=stop_after_attempt(5),
         wait=wait_fixed(30),
@@ -40,7 +46,14 @@ class OpenAITTSEngine(BaseTTSEngine):
         """
         voice = self.voices[speaker]
         speed = self.participants[speaker].speed or 1.0
-        response = self.client.audio.speech.create(model=self.model, voice=voice, input=text, speed=speed)
+        instructions = self.participants[speaker].voice_instructions or ""
+        response = self.client.audio.speech.create(
+            model=self.model,
+            voice=voice,
+            input=text,
+            speed=speed,
+            instructions=instructions,
+        )
 
         # OpenAI returns a stream of bytes that we can convert to our needed format
         return response.content

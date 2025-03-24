@@ -61,6 +61,7 @@ class Participant(BaseModel):
     personality: Optional[str] = ""
     language_code: Optional[str] = "en-US"
     speed: Optional[float] = 1.0
+    voice_instructions: Optional[str] = ""
 
 
 class GoogleCloudTTSConfig(BaseModel):
@@ -76,6 +77,7 @@ class OpenAITTSConfig(BaseModel):
     model: str = "tts-1"
     api_key: str
     base_url: Optional[str] = None
+    additional_instructions: Optional[str] = ""
 
 
 TTSConfig: TypeAlias = Union[GoogleCloudTTSConfig, OpenAITTSConfig]

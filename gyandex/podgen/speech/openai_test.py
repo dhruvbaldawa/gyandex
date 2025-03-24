@@ -24,25 +24,6 @@ def test_openai_tts_engine_initialization(mock_openai):
     assert engine.voices["Mike"] == "onyx"
 
 
-@patch("openai.OpenAI")
-def test_clean_text_for_tts(mock_openai):
-    """Test that text cleaning works correctly for TTS preparation"""
-    # Given
-    engine = OpenAITTSEngine([Participant(name="Host", gender=Gender.MALE, voice="")], api_key="test-key")
-    text = (
-        "This is a *test* with _emphasis_ and **bold** text. This is a 5*3 calculation. Wait, *hold on*—let me rethink."
-    )
-    mock_openai.return_value = MagicMock()  # Mock the OpenAI client
-    # When
-    cleaned = engine.clean_text_for_tts(text)
-    # Then
-    assert "*" not in cleaned
-    assert "_" not in cleaned
-    assert "5 times 3" in cleaned
-    assert "Wait, hold on" in cleaned
-    assert "—" not in cleaned
-
-
 @patch("gyandex.podgen.speech.openai.OpenAI")
 def test_process_segment(mock_openai_class):
     """Test that process_segment properly calls the OpenAI API with cleaned text"""
@@ -57,7 +38,7 @@ def test_process_segment(mock_openai_class):
     participants = [Participant(name="Host", voice="alloy", gender=Gender.MALE)]
     engine = OpenAITTSEngine(participants, api_key="test-key")
 
-    segment = DialogueLine(speaker="Host", text="This is a *test*.")
+    segment = DialogueLine(speaker="Host", text="This is a test.")
 
     # When
     result = engine.process_segment(segment)
@@ -91,4 +72,6 @@ def test_synthesize_speech(mock_openai):
 
     # Then
     assert result == b"audio data"
-    mock_client.audio.speech.create.assert_called_once_with(model="tts-1", voice="alloy", input="Test text", speed=1.0)
+    mock_client.audio.speech.create.assert_called_once_with(
+        model="tts-1", voice="alloy", input="Test text", speed=1.0, instructions=""
+    )

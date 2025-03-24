@@ -112,16 +112,10 @@ class OutlineGenerator:
             )
         )
 
-        try:
-            # Get structured analysis result
-            analysis_result = analysis_chain.invoke({"content": document.content, "title": document.title})
-            optimal_segments = analysis_result.optimal_segments
-            # Convert to string representation for prompt
-            analysis_str = analysis_result.json(indent=2)
-        except Exception:
-            # Fallback if parsing fails
-            optimal_segments = 7
-            analysis_str = "Content analysis unavailable. Using default parameters."
+        # Get structured analysis result
+        analysis_result = analysis_chain.invoke({"content": document.content, "title": document.title})
+        optimal_segments = analysis_result.optimal_segments
+        analysis_str = analysis_result.model_dump_json(indent=2)
 
         # Stage 2: Generate the outline using the content analysis
         chain = (
@@ -146,8 +140,9 @@ class OutlineGenerator:
 
 
 class ScriptGenerator:
-    def __init__(self, config: LLMConfig, participants: List[Participant]):
+    def __init__(self, config: LLMConfig, participants: List[Participant], additional_instructions: str = ""):
         self.model = get_model(config)
+        self.additional_instructions = additional_instructions
 
         self.parser = PydanticOutputParser(pydantic_object=ScriptSegment)
 
@@ -165,6 +160,7 @@ class ScriptGenerator:
             partial_variables={
                 "format_instructions": self.parser.get_format_instructions(),
                 "host_profiles": "\n".join([self.create_host_profile(participant) for participant in participants]),
+                "additional_instructions": additional_instructions,
             },
             template=dedent("""
             You are a podcast script writer creating authentic, unscripted dialogue between two knowledgeable experts.
@@ -205,11 +201,6 @@ class ScriptGenerator:
               - Frequent speech disfluencies (um, uh, like, you know)
               - Uneven turn lengths (some short responses, some longer explanations)
               - At least 2 tangents that don't perfectly connect to the main topic
-
-            HOST DIFFERENTIATION:
-            {host_profiles}
-            - Hosts MUST have clearly distinct speaking styles
-            - Maintain these distinct patterns consistently throughout
 
             CONVERSATION DYNAMICS:
             1. DISAGREEMENT PATTERNS (COMPLEX & MULTI-LAYERED):
@@ -381,6 +372,14 @@ class ScriptGenerator:
 
             3. ONLY THEN generate the actual dialogue following all guidelines above
 
+            HOST DIFFERENTIATION:
+            {host_profiles}
+            - Hosts MUST have clearly distinct speaking styles
+            - Maintain these distinct patterns consistently throughout
+
+            TTS-specific instructions:
+            {additional_instructions}
+
             ---
 
             SOURCE MATERIAL:
@@ -519,7 +518,10 @@ class AlexandriaWorkflow:
     async def generate_script(self, document: Document) -> PodcastEpisode:
         # Initialize components with enhanced configuration
         outline_gen = OutlineGenerator(self.config.workflow.outline)
-        script_gen = ScriptGenerator(self.config.workflow.script, self.config.tts.participants)
+
+        # Get additional_instructions if available in OpenAI TTS config
+        additional_instructions = getattr(self.config.tts, "additional_instructions", "")
+        script_gen = ScriptGenerator(self.config.workflow.script, self.config.tts.participants, additional_instructions)
 
         # Generate outline
         outline = outline_gen.generate_outline(document)
