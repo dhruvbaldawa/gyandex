@@ -26,22 +26,42 @@ class OutlineGenerator:
         # Content analysis prompt to help LLM assess complexity and scale response appropriately
         self.content_analysis_prompt = PromptTemplate(
             template=dedent("""
-            You are an expert content analyst specializing in podcast production. Your task is to analyze the following
-            content and provide an assessment to help determine the optimal structure for a podcast episode.
+            <role>
+            You are an expert content analyst specializing in podcast production and content optimization.
+            </role>
 
-            <title>{title}</title>
+            <task>
+            Analyze the provided content to determine the optimal structure for a podcast episode.
+            </task>
+
             <content>
+            Title: {title}
+
+            Content:
             {content}
             </content>
 
-            Analyze this content and provide your assessment of:
+            <reasoning>
+            Think step-by-step:
+            1. Assess the conceptual complexity of the material (technical terms, abstract concepts)
+            2. Evaluate information density (amount of distinct ideas per paragraph)
+            3. Identify and count the major distinct concepts presented
+            4. Determine how many separate topics or themes the content covers
+            5. Based on all factors, calculate the optimal number of podcast segments (3-8)
+            </reasoning>
+
+            <requirements>
+            Provide a structured assessment with these metrics:
             1. Content Complexity: Rate from 1-5 (1=very simple, 5=highly complex)
             2. Information Density: Rate from 1-5 (1=sparse, 5=extremely dense)
             3. Concept Count: Estimate how many distinct key concepts are presented
             4. Content Breadth: How many separate topics or themes does this cover?
             5. Recommended Segments: Based on your analysis, how many podcast segments would be ideal (3-8)
+            </requirements>
 
+            <output_format>
             {format_instructions}
+            </output_format>
             """),
             input_variables=["content", "title"],
             partial_variables={"format_instructions": self.analysis_parser.get_format_instructions()},
@@ -50,51 +70,67 @@ class OutlineGenerator:
         # Updated outline prompt with content-aware guidance
         self.outline_prompt = PromptTemplate(
             template=dedent("""
-            Create a focused and engaging podcast outline based on the content
+            <role>
+            You are an expert podcast producer skilled at transforming written content into engaging, structured
+            podcast outlines.
+            </role>
 
-            CONTENT ANALYSIS:
+            <context>
+            Content Analysis Results:
             {content_analysis}
 
-            Use the above content analysis to guide your creation of a well-proportioned podcast outline.
+            Based on this analysis, aim for approximately {optimal_segments} segments.
+            </context>
 
-            Rules:
-            1. Target podcast duration and number of segments should be proportional to the content length;
-               it should not be more than reading the content directly
-            2. Each segment must focus on a UNIQUE aspect with NO overlap
-            3. Keep segments concise and focused on actual content from the source
-            4. Don't add speculative content or expand beyond the source material
-            5. Talking points must be mutually exclusive across segments - NO DUPLICATION ALLOWED
-            6. Maintain natural conversation flow between segments
-            7. Explore different perspectives, so that important topics are covered holistically
-            8. Structure content with progressive complexity:
-               - Start with accessible, foundational concepts
-               - Build up to more complex or technical discussions
-               - End with practical applications or broader implications
-            9. Include engagement hooks for each segment:
-               - Relatable examples or analogies
-               - Thought-provoking questions for the audience
-               - Real-world connections or applications
-               - Scenario-based thought experiments
-            10. Balance content types across segments:
-                - Conceptual understanding
-                - Technical details
-                - Practical applications
-                - Critical analysis
-                - Storytelling opportunities
-            11. Self-assess the complexity and importance of each topic to determine appropriate depth
-            12. Allocate more dialogue space to complex concepts and less to simple ones
-            13. Aim for approximately {optimal_segments} segments based on content analysis
-            14. Balance segment durations based on topic importance and complexity
-
-            <title>{title}</title>
             <content>
+            Title: {title}
+
+            Content:
             {content}
             </content>
 
-            {format_instructions}
+            <approach>
+            Think step-by-step:
+            1. Identify the core message and key themes in the content
+            2. Group related ideas into potential segments
+            3. Prioritize topics based on importance, complexity, and audience value
+            4. Structure segments from foundational to advanced concepts
+            5. Create natural transitions between segments
+            6. Balance segment durations according to topic complexity
+            </approach>
 
-            Make sure each segment has a clear transition to the next topic.
-            Verify that all talking points are unique across all segments before finalizing.
+            <principles>
+            1. Each segment must focus on a UNIQUE aspect with NO overlap
+            2. Design progressive complexity flow (basic -> advanced -> application)
+            3. Balance content types (conceptual, technical, practical, analytical, narrative)
+            4. Create engaging hooks for each segment
+            5. Maintain natural conversation flow between segments
+            </principles>
+
+            <requirements>
+            Your outline must include:
+            1. An overall podcast title that captures the essence of the content
+            2. A compelling podcast description (2-3 sentences)
+            3. Approximately {optimal_segments} segments with:
+               - Clear segment name
+               - 3-5 unique talking points per segment
+               - Suggested duration (in minutes)
+               - Natural transition to the next segment
+            4. Total podcast duration proportional to content complexity
+            </requirements>
+
+            <self_critique>
+            Before finalizing, verify:
+            1. Is each segment focused on a unique aspect with no overlapping talking points?
+            2. Does the flow progress naturally from foundational to complex topics?
+            3. Are all major concepts from the source content included?
+            4. Are segment durations appropriate for the topic complexity?
+            5. Do transitions feel natural between segments?
+            </self_critique>
+
+            <output_format>
+            {format_instructions}
+            </output_format>
             """),
             input_variables=["content", "title", "content_analysis", "optimal_segments"],
             partial_variables={"format_instructions": self.parser.get_format_instructions()},
@@ -163,267 +199,86 @@ class ScriptGenerator:
                 "additional_instructions": additional_instructions,
             },
             template=dedent("""
-            You are a podcast script writer creating authentic, unscripted dialogue between two knowledgeable experts.
+            # PODCAST DIALOGUE GENERATION
 
-            YOUR GOAL: Generate podcast dialogue that's indistinguishable from a real, natural conversation between
-              experts. Focus on making dialogue that feels spontaneous and human - not AI-generated.
+            <role>
+            You are an expert podcast scriptwriter who specializes in creating authentic, engaging conversations that
+            sound completely natural.
+            </role>
 
-            CORE PRINCIPLES:
-            1. ⚠️ ABSOLUTELY FORBIDDEN PHRASES (CRITICAL PRIORITY) ⚠️:
-              - "EXACTLY" - THIS WORD IS COMPLETELY BANNED IN ALL FORMS AND CONTEXTS
-              - BEFORE FINALIZING, SEARCH FOR "EXACT" AND REMOVE ALL INSTANCES OF "EXACTLY"
-              - "That's right" and ALL variations
-              - "I agree" followed by expansion
-              - "Absolutely" as confirmation
-              - "Right" as confirmation
-              - Any phrase that directly validates the previous statement
-              - "I see what you're saying" followed by agreement
-              - "That makes sense" as a transition to agreement
-              - "You have a point" followed by agreement
-              - "Well said" or "Beautifully said" as validation
-
-            2. ALTERNATIVE RESPONSE PATTERNS (USE THESE INSTEAD):
-              - "Oh, that's an interesting perspective..."
-              - "Hmm, I hadn't thought about it that way..."
-              - "I see where you're going with that..."
-              - "That reminds me of..."
-              - "Building on what you just said..."
-              - "I'm not entirely convinced, but I see your point about..."
-              - "That's a fascinating angle..."
-              - "I'm with you on part of that..."
-              - "I can see the merit in that idea..."
-              - "That's a compelling way to look at it..."
-
-            3. REQUIRED NATURAL ELEMENTS (MUST INCLUDE ALL):
-              - At least 3 STRONG disagreements where hosts challenge each other's ideas
-              - At least 4 genuine interruptions where one host cuts off the other mid-sentence
-              - At least 2 instances where hosts talk over each other
-              - Frequent speech disfluencies (um, uh, like, you know)
-              - Uneven turn lengths (some short responses, some longer explanations)
-              - At least 2 tangents that don't perfectly connect to the main topic
-
-            CONVERSATION DYNAMICS:
-            1. DISAGREEMENT PATTERNS (COMPLEX & MULTI-LAYERED):
-              - REQUIRED: At least 2 EXTENDED disagreements spanning 5+ dialogue exchanges
-              - Disagreements must have MULTIPLE layers and points of contention
-              - Hosts must defend their positions with different types of evidence:
-                * Personal experiences
-                * Expert opinions
-                * Logical reasoning
-                * Historical examples
-                * Counterfactuals or thought experiments
-              - NEVER resolve disagreements too quickly or neatly
-              - Include instances where a host concedes on one point but introduces a new objection
-              - Create moments of genuine intellectual tension where neither host is clearly "right"
-              - Allow for productive disagreements where both perspectives have merit
-              - Occasionally have hosts realize they're arguing about different aspects of the same issue
-
-            2. DISAGREEMENT LANGUAGE PATTERNS:
-              - "I understand your point about X, but that doesn't address Y..."
-              - "That example doesn't apply here because..."
-              - "I'm still not convinced because..."
-              - "Let's look at this from another angle..."
-              - "I think we're talking past each other because..."
-              - "There's a fundamental issue with that reasoning..."
-              - "I see where you're coming from, but I think you're overlooking..."
-              - "That's an interesting perspective, though I'd argue that..."
-              - "I'm not sure that conclusion follows from your premise..."
-              - "The problem with that approach is..."
-
-            3. AUTHENTIC REACTIONS: Replace validating phrases with authentic reactions
-              * "Hmm, that's interesting..."
-              * "Wait, I'm not sure I follow..."
-              * "That makes me think of something else entirely..."
-              * "I never considered that angle before..."
-              * "I'm not convinced that..."
-              * "I wonder about that..."
-
-            4. MESSY STRUCTURE:
-              - Avoid perfect back-and-forth exchanges
-              - Include false starts and abandoned thoughts
-              - Allow one host to occasionally dominate a section
-              - Include moments where hosts misunderstand each other
-
-            CONTENT REQUIREMENTS:
-              1. Each exchange must advance substantive ideas
-              2. Balance technical depth with accessible explanations
-              3. Include personal anecdotes and audience questions
-              4. Add practical takeaways
-
-            STRUCTURAL RULES:
-              1. Transition organically between topics
-              2. Alternate speakers between segments
-              3. Reference previous discussions naturally
-              4. Avoid repeating examples/analogies
-
-            GENERATION GUARDRAILS (APPLY DURING CREATION):
-              1. ⚠️ WORD-LEVEL VIGILANCE ⚠️
-                - As you generate EACH LINE of dialogue, actively avoid ALL banned phrases
-                - NEVER write "exact" or any variation - substitute with provided alternatives
-                - When tempted to write an agreement phrase, use a disagreement or qualified agreement instead
-                - If you catch yourself starting to write a banned phrase, use a self-correction pattern
-
-              2. DIALOGUE CONSTRUCTION TECHNIQUES:
-                - START with distinct personality traits for each host and maintain them throughout
-                - PLAN disagreements in advance - decide where hosts will have different perspectives
-                - DELIBERATELY include interruptions as you write (don't wait until the end)
-                - INTENTIONALLY vary response patterns - if one host just agreed, make them disagree next time
-                - ACTIVELY insert speech disfluencies during initial generation
-
-              3. REAL-TIME PATTERN PREVENTION:
-                - After writing 3-4 exchanges, quickly scan for developing patterns and break them
-                - If hosts are agreeing too much, insert a strong disagreement immediately
-                - If dialogue is becoming too polished, add messiness right away
-                - If one host is dominating, give the other host a longer response
-
-              4. SELF-CORRECTION PATTERNS (USE WHEN CATCHING YOURSELF):
-                - "That's exac— I mean, that's a good point"
-                - "I agr— actually, I have a slightly different take"
-                - "You're ri— wait, let me think about that more"
-                - "Absol— hmm, I'm not sure I'd go that far"
-
-            LANGUAGE PATTERN VARIETY (AVOID REPETITION):
-            - NEVER use the exact same reaction or transition phrase more than once in a segment
-            - REPHRASE suggested patterns in your own words - don't copy them verbatim
-            - VARY emotional tone in responses (curious, skeptical, surprised, thoughtful)
-            - CREATE unique variations for each instance of disagreement or reaction
-            - Examples of pattern variations (USE AS INSPIRATION, NOT EXACT PHRASES):
-              * Disagreement variations:
-                "I hear what you're saying, but I'm struggling with..."
-                "That perspective overlooks the fact that..."
-                "I've been thinking about it differently..."
-                "The challenge I see with that approach is..."
-                "I'm wrestling with that idea because..."
-                "That's not how I see it..."
-                "I'd push back on that point..."
-                "I'm not fully sold on that explanation..."
-                "There's another way to look at this..."
-                "What about cases where that doesn't apply?"
-
-              * Reaction variations:
-                "That's a thought-provoking take..."
-                "I hadn't considered it from that angle..."
-                "That connection is fascinating..."
-                "I'm still processing that idea..."
-                "That's got me thinking about..."
-                "Something feels off about that explanation..."
-                "I'm intrigued by your approach to this..."
-                "That's a nuanced way of looking at it..."
-                "I'm trying to reconcile that with..."
-                "That raises an important question about..."
-
-            SPEECH DIVERSITY GUIDELINES:
-              - DELIBERATELY VARY sentence structure, length, and complexity
-              - USE a mix of questions, statements, and incomplete thoughts
-              - INCLUDE occasional verbal quirks unique to each host
-              - CREATE moments where hosts struggle to articulate complex ideas
-              - EMPLOY different linguistic registers (casual, technical, philosophical)
-              - DEVELOP unique transitional phrases for each topic shift
-
-            FORCED PATTERN BREAKING: After completing the dialogue, DELIBERATELY insert at least:
-              * 3 instances where a host starts to say something and changes direction mid-sentence
-              * 2 instances where a host contradicts themselves slightly
-              * 4 instances of speech disfluencies (um, uh, like, you know)
-              * 2 instances where a host misremembers or misquotes something
-
-            CONTINUOUS CONVERSATION REQUIREMENTS:
-              - This is ONE CONTINUOUS EPISODE with NO AD BREAKS
-              - NEVER end a segment with phrases indicating a break (e.g., "we'll be right back", "stay tuned")
-              - NEVER start a segment with phrases indicating a return (e.g., "welcome back", "as we discussed earlier")
-              - Transition between segments should feel like natural topic shifts in a single ongoing conversation
-              - Maintain consistent energy levels across segment boundaries
-
-            VARIED RESOLUTIONS - AVOID BALANCE AS DEFAULT:
-            - NEVER end more than one segment with "balance is key" or similar conclusions
-            - Use these diverse ending types (one per segment):
-                * Clear winner: One host convinces the other or has a stronger position
-                * Productive tension: Hosts maintain respectful disagreement without resolution
-                * New question: Discussion raises a deeper question that remains unexplored
-                * Surprising connection: Hosts find unexpected common ground on a tangential point
-                * Personal reflection: One host relates concept to personal experience without resolution
-                * Philosophical pivot: Discussion moves to broader implications without settling original point
-            - EXPLICITLY AVOID phrases like "I think we're both agreeing" as default resolution
-            - CRITICAL: Each segment MUST have a COMPLETELY DIFFERENT ending
-            - NEVER end more than one segment with the same host making similar closing remarks
-            - NEVER use the phrase like "next time we'll dive deeper into..." more than once
-            - TRACK previous segment endings to ensure variety
-
-            NATURAL SEGMENT TRANSITIONS:
-            - NEVER end a segment with obvious wrap-up phrases like "Well, that's a wrap" or "Let's move on"
-            - NEVER start a segment with obvious transition markers like "Alright, let's talk about..."
-            - Instead, create organic topic shifts that feel like natural conversation:
-                * Use curiosity: "I've been wondering about something else Bacon mentioned..."
-                * Use association: "That reminds me of another aspect of this topic..."
-                * Use contrast: "What's interesting is how Bacon takes a different approach when discussing..."
-                * Use questioning: "Do you think Bacon's view on reading applies to other forms of learning?"
-            - Make transitions feel spontaneous rather than scripted or planned
-            - Avoid clearly demarcated endings and beginnings between segments
-
-            GENERATION APPROACH:
-            1. FIRST, review the following carefully:
-            - Previous segment
-            - Source material
-            - Talking points
-
-            2. PLAN your segment to ensure NO REPETITION:
-            - Write down concepts you WON'T repeat
-            - Plan unique angles for any related concepts
-            - Design your segment structure to be distinct from previous ones
-
-            3. ONLY THEN generate the actual dialogue following all guidelines above
-
-            HOST DIFFERENTIATION:
-            {host_profiles}
-            - Hosts MUST have clearly distinct speaking styles
-            - Maintain these distinct patterns consistently throughout
-
-            TTS-specific instructions:
-            {additional_instructions}
-
-            ---
-
-            SOURCE MATERIAL:
-            <content>
-            {source_content}
-            </content>
-
-            PREVIOUS SEGMENTS (GENERATED EPISODE SO FAR):
-            <content>
-            {previous_content}
-            </content>
-
-            TOTAL SEGMENTS: {total_segments}
-            SEGMENT NUMBER: {segment_number}
-
-            ---
-
-            CURRENT SEGMENT DETAILS:
-            Topic: {segment_name}
-            Key Points: {talking_points}
+            <context>
+            Creating segment {segment_number}/{total_segments} on topic: "{segment_name}"
             Duration: {duration} minutes
-            Transition: {transition}
+            </context>
 
-            SEGMENT-SPECIFIC REQUIREMENTS:
-            1. If this is segment 1 of {total_segments}: Begin with a casual introduction to the podcast,
-              welcoming listeners and introducing the topic in a conversational way.
-              - Avoid overly scripted introductions
-              - Include some small talk between hosts before fully diving in
+            <character_profiles>
+            {host_profiles}
 
-            2. If this is a middle segment: Create SEAMLESS flow from previous segments
-              - NEVER mention "last segment" or refer to breaks
-              - NEVER use phrases like "welcome back" or "as we were saying"
-              - Simply continue the conversation naturally with a subtle topic shift
-              - Use natural conversation pivots like "That reminds me of..." or "Speaking of which..."
-              - AVOID ANY indication that there was a break between segments
+            {additional_instructions}
+            </character_profiles>
 
-            3. If this is segment {total_segments} of {total_segments}: End with a natural conclusion
-              that doesn't feel too rehearsed or perfect
-              - Include natural wrap-up cues ("We should probably start wrapping up")
-              - Mention a brief takeaway or follow-up thought
-              - Thank listeners in a casual way
+            <requirements>
+            Cover these talking points naturally:
+            {talking_points}
 
-            You must always return valid JSON fenced by a markdown code block. Do not return any additional text.
+            Connect to previous content:
+            {previous_content}
+
+            Draw accurately from source material:
+            {source_content}
+
+            Use this transition to next topic: {transition}
+            </requirements>
+
+            <constraints>
+            - BANNED WORDS/PHRASES: "exactly", "that's right", "I agree" + expansion, validation phrases
+            - REQUIRED ELEMENTS: 3+ disagreements, 4+ interruptions, speech disfluencies, uneven turns
+            - SEGMENT POSITION:
+              * If segment 1: Begin with casual introduction
+              * If middle segment: Create seamless flow from previous segments (no "welcome back" or "let's continue"
+              or "wrapping up")
+              * If final segment: End naturally with wrap-up and thanks
+            </constraints>
+
+            <reasoning>
+            Let's think step-by-step:
+
+            1. Analyze host personalities and their natural speaking patterns
+               * How would each host uniquely approach this topic?
+               * Where would their perspectives naturally align or differ?
+
+            2. Explore multiple conversation paths (choose most authentic):
+               * Path A: Start with agreement, then discover disagreement
+               * Path B: Begin with contrasting views, find common ground
+               * Path C: Explore tangent, then refocus on key points
+
+            3. Plan natural interruptions and speech patterns:
+               * Identify 3-4 moments for authentic interruptions
+               * Determine places for speech disfluencies (um, uh, like)
+               * Create 2-3 instances where hosts talk over each other briefly
+
+            4. Structure conversation flow:
+               * Create extended disagreements (5+ exchanges) with multiple layers
+               * Use diverse evidence types (personal experience, expert opinions, logical reasoning)
+               * Balance technical depth with accessible explanations
+               * Include tangents that don't perfectly connect to main topics
+            </reasoning>
+
+            <self_critique>
+            After drafting, verify:
+            1. Does each line sound like something the host would naturally say?
+            2. Are there enough natural speech patterns (hesitations, interruptions)?
+            3. Have I avoided all banned phrases and artificial dialogue?
+            4. Does the conversation cover all required points while feeling spontaneous?
+            5. Are hosts' speaking styles distinct and consistent?
+            6. Does the conversation flow naturally without obvious transitions?
+            7. Have I created a distinct ending type for this segment?
+            </self_critique>
+
+            <output_format>
+            Return ONLY valid JSON matching this structure:
             {format_instructions}
+            </output_format>
             """),
         )
 
